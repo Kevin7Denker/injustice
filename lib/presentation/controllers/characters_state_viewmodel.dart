@@ -77,7 +77,6 @@ class CharactersStateViewmodel {
   final selectedClasses = signal<Set<CharacterClass>>({});
   final selectedAlignments = signal<Set<CharacterAlignment>>({});
   final levelFilter = signal<LevelFilter>(LevelFilter.all);
-  final expandedSections = signal<Set<String>>({});
 
   /// ------------------------------
   /// FILTROS
@@ -267,22 +266,6 @@ class CharactersStateViewmodel {
 
   void setLevelFilter(LevelFilter filter) {
     levelFilter.value = filter;
-  }
-
-  bool isSectionExpanded(String key) {
-    return expandedSections.value.contains(key);
-  }
-
-  void toggleSection(String key) {
-    final set = Set<String>.from(expandedSections.value);
-
-    if (set.contains(key)) {
-      set.remove(key);
-    } else {
-      set.add(key);
-    }
-
-    expandedSections.value = set;
   }
 
   void clearFilters() {

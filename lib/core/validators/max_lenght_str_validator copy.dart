@@ -1,5 +1,6 @@
 import '../failure/failure.dart';
 import '../messages/app_messages.dart';
+
 import 'base_validator.dart';
 
 final class MaxLengthStrValidator extends BaseValidator<String?> {

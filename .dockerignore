@@ -1,13 +1,28 @@
-.git
-.dart_tool
-build
-
-.idea
-.vscode
-*.iml
-
-.flutter-plugins
-.flutter-plugins-dependencies
+# Build artifacts
+build/
+.dart_tool/
 .packages
 
-coverage
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Platform folders (not needed for web build)
+android/
+ios/
+macos/
+linux/
+windows/
+
+# Git
+.git/
+.gitignore
+
+# Misc
+*.md
+.metadata
+devtools_options.yaml
+.flutter-plugins
+.flutter-plugins-dependencies
+test_fonts.dart

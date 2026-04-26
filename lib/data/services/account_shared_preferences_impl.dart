@@ -1,18 +1,17 @@
 import 'dart:convert';
 
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../core/failure/failure.dart';
 import '../../core/patterns/result.dart';
 import '../../core/typedefs/types_defs.dart';
+import 'account_local_storage_interface.dart';
 import '../../domain/models/account_entity.dart';
 import '../../domain/models/account_mapper.dart';
-import 'account_local_storage_interface.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final class AccountSharedPreferencesService implements IAccountLocalStorage {
   static const String _storageKey = 'account_data';
   @override
-  Future<VoidResult> deleteAccount() async { 
+  Future<VoidResult> deleteAccount() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       prefs.clear(); // Limpa todas as preferências, incluindo a conta

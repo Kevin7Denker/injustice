@@ -23,7 +23,6 @@ class AccountCreateView extends StatefulWidget {
 }
 
 class _AccountCreateViewState extends State<AccountCreateView> {
-  // late final CriarContaViewModel _viewModel;
   late final AccountViewModel _vmAccount;
   late final void Function() _disposeAccountEffect;
   late final void Function() _disposeSuccessEffect;
@@ -32,10 +31,6 @@ class _AccountCreateViewState extends State<AccountCreateView> {
   final _formKey = GlobalKey<FormState>();
   final ScrollController _scrollController = ScrollController();
 
-  // late final FormFieldControl _emailField;
-  // late final FormFieldControl _nomeField;
-  // late final FormFieldControl _displayNameField;
-  // late final List<FormFieldControl> _fields;
   late final AccountFormFieldsController _formFields;
 
   DateTime _createdAt = DateTime.now();
@@ -48,26 +43,6 @@ class _AccountCreateViewState extends State<AccountCreateView> {
   void initState() {
     super.initState();
     _formFields = AccountFormFieldsController();
-
-    // _emailField = (
-    //   key: GlobalKey<FormFieldState>(),
-    //   focus: FocusNode(),
-    //   controller: TextEditingController(),
-    // );
-
-    // _nomeField = (
-    //   key: GlobalKey<FormFieldState>(),
-    //   focus: FocusNode(),
-    //   controller: TextEditingController(),
-    // );
-
-    // _displayNameField = (
-    //   key: GlobalKey<FormFieldState>(),
-    //   focus: FocusNode(),
-    //   controller: TextEditingController(),
-    // );
-
-    // _fields = [_emailField, _nomeField, _displayNameField];
 
     _vmAccount = injector.get<AccountViewModel>();
     _vmAccount.accountState.clearMessage();
@@ -90,10 +65,7 @@ class _AccountCreateViewState extends State<AccountCreateView> {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
 
-          // ScaffoldMessenger.of(context).showSnackBar(
-          //   SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
-          // );
-          showSnackBar(context, errorMessage, backgroundColor: Colors.red);
+          showSnackBar(context, errorMessage, backgroundColor: AppColors.hotMagenta);
 
           _vmAccount.accountState.clearMessage();
         });
@@ -113,15 +85,15 @@ class _AccountCreateViewState extends State<AccountCreateView> {
           switch (event) {
             case AccountSuccessEvent.created:
               message = 'Conta criada com sucesso!';
-              color = Colors.green;
+              color = AppColors.limeScan;
 
             case AccountSuccessEvent.updated:
               message = 'Conta atualizada com sucesso!';
-              color = Colors.green;
+              color = AppColors.limeScan;
 
             case AccountSuccessEvent.deleted:
               message = 'Conta excluída com sucesso!';
-              color = Colors.red.shade400; // vermelho mais suave
+              color = AppColors.hotMagentaLight;
           }
 
           showSnackBar(context, message, backgroundColor: color);
@@ -136,15 +108,11 @@ class _AccountCreateViewState extends State<AccountCreateView> {
   void dispose() {
     _disposeAccountEffect();
     _disposeSuccessEffect();
-    _disposeErrorEffect();
+    _disposeErrorEffect;
 
     _scrollController.dispose();
 
     _formFields.dispose();
-    // for (final field in _fields) {
-    //   field.focus.dispose();
-    //   field.controller.dispose();
-    // }
     super.dispose();
   }
 
@@ -165,7 +133,6 @@ class _AccountCreateViewState extends State<AccountCreateView> {
   void _limparCampos() {
     _formKey.currentState?.reset();
     _formFields.clear();
-    // _clearForm();
 
     _createdAt = DateTime.now();
     _level = 1;
@@ -175,12 +142,6 @@ class _AccountCreateViewState extends State<AccountCreateView> {
 
     setState(() {});
   }
-
-  // void _clearForm() {
-  //   for (final field in _fields) {
-  //     field.controller.clear();
-  //   }
-  // }
 
   void _resetFormView() {
     // Remove foco de qualquer TextField
@@ -267,7 +228,11 @@ class _AccountCreateViewState extends State<AccountCreateView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Watch((_) => Text(_vmAccount.accountState.labelEditMode.value)),
+        title: Watch(
+          (_) => Text(
+            _vmAccount.accountState.labelEditMode.value.toUpperCase(),
+          ),
+        ),
       ),
       drawer: AppDrawer(),
       body: GestureDetector(
@@ -280,35 +245,48 @@ class _AccountCreateViewState extends State<AccountCreateView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(
-                  Icons.person_add,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.onSecondary,
+                // ── Header icon with accent gradient glow ──
+                Center(
+                  child: Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: AppColors.accentGradient,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.neonCyan.withOpacity(0.25),
+                          blurRadius: 20,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.person_add_rounded,
+                      size: 32,
+                      color: AppColors.void_,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                // Text(
-                //   'Criar Nova Conta',
-                //   style: context.textStyles.headlineMedium?.bold,
-                //   textAlign: TextAlign.center,
-                // ),
-                // const SizedBox(height: AppSpacing.md),
+
                 Text(
                   'Preencha os dados abaixo para criar sua conta',
-                  style: context.textStyles.bodyMedium?.withColor(
-                    Theme.of(context).colorScheme.onSurfaceVariant,
+                  style: context.textStyles.bodyMedium?.copyWith(
+                    color: AppColors.coolWhiteMuted,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: AppSpacing.xl),
 
-                // Email
+                // ── Form Fields ──
                 InputTextField(
                   fieldKey: _formFields.email.key,
                   controller: _formFields.email.controller,
                   focusNode: _formFields.email.focus,
                   label: 'Email',
                   hint: 'Digite seu e-mail',
-                  prefixIcon: Icons.email,
+                  prefixIcon: Icons.email_rounded,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) => validateField(value, [
                     EmptyStrValidator(),
@@ -317,12 +295,11 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                 ),
                 const SizedBox(height: AppSpacing.md),
 
-                // Nome
                 InputTextField(
                   fieldKey: _formFields.name.key,
                   controller: _formFields.name.controller,
                   focusNode: _formFields.name.focus,
-                  prefixIcon: Icons.account_circle,
+                  prefixIcon: Icons.account_circle_rounded,
                   label: 'Nome',
                   hint: 'Digite seu nome',
                   validator: (value) =>
@@ -330,31 +307,40 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                 ),
                 const SizedBox(height: AppSpacing.md),
 
-                //displayName
                 InputTextField(
                   label: 'Apelido',
                   fieldKey: _formFields.displayName.key,
                   controller: _formFields.displayName.controller,
                   focusNode: _formFields.displayName.focus,
-                  prefixIcon: Icons.verified_user,
+                  prefixIcon: Icons.verified_user_rounded,
                   hint: 'Digite seu apelido',
                   validator: (value) =>
                       validateField(value, [EmptyStrValidator()]),
                 ),
                 const SizedBox(height: AppSpacing.md),
 
-                // Data de Criação
+                // ── Date Picker ──
                 DateWheelPicker(
                   label: 'Data de Criação',
                   selectedDate: _createdAt,
                   onDateSelected: (date) => setState(() => _createdAt = date),
                 ),
+                const SizedBox(height: AppSpacing.lg),
+
+                // ── Section Title ──
+                Text(
+                  'ATRIBUTOS',
+                  style: context.textStyles.headlineSmall?.copyWith(
+                    color: AppColors.coolWhite,
+                    letterSpacing: 3,
+                  ),
+                ),
                 const SizedBox(height: AppSpacing.md),
 
-                // Level
+                // ── Attribute Cards ──
                 AccountAttributeCard(
-                  icon: Icons.star,
-                  iconColor: Theme.of(context).colorScheme.primary,
+                  icon: Icons.star_rounded,
+                  iconColor: AppColors.neonCyan,
                   label: 'Nível',
                   hint: '[1, 80]',
                   minValue: 1,
@@ -362,12 +348,11 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                   value: _level,
                   onChanged: (value) => setState(() => _level = value),
                 ),
-                const SizedBox(height: 1),
+                const SizedBox(height: AppSpacing.xs),
 
-                // Gold
                 AccountAttributeCard(
-                  icon: Icons.monetization_on,
-                  iconColor: Colors.amber,
+                  icon: Icons.monetization_on_rounded,
+                  iconColor: AppColors.plasmaGold,
                   label: 'Ouro',
                   hint: 'Min: 0',
                   minValue: 0,
@@ -376,12 +361,11 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                   onChanged: (value) =>
                       setState(() => _gold = value.toDouble()),
                 ),
-                const SizedBox(height: 1),
+                const SizedBox(height: AppSpacing.xs),
 
-                // Gems
                 AccountAttributeCard(
-                  icon: Icons.diamond,
-                  iconColor: Colors.cyan,
+                  icon: Icons.diamond_rounded,
+                  iconColor: AppColors.techBlue,
                   label: 'Gemas',
                   hint: 'Min: 0',
                   minValue: 0,
@@ -389,12 +373,11 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                   value: _gems,
                   onChanged: (value) => setState(() => _gems = value),
                 ),
-                const SizedBox(height: 1),
+                const SizedBox(height: AppSpacing.xs),
 
-                // Energy
                 AccountAttributeCard(
-                  icon: Icons.bolt,
-                  iconColor: Colors.orange,
+                  icon: Icons.bolt_rounded,
+                  iconColor: AppColors.limeScan,
                   label: 'Energia',
                   hint: 'Min: 1',
                   minValue: 1,
@@ -402,12 +385,12 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                   value: _energy,
                   onChanged: (value) => setState(() => _energy = value),
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.xl),
 
-                // Botão salvar/criar conta
+                // ── Action Buttons ──
                 Row(
                   children: [
-                    // BOTÃO SALVAR / EDITAR
+                    // SAVE / EDIT
                     Expanded(
                       child: Watch((context) {
                         final isRunning =
@@ -422,38 +405,58 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                                 .isExecuting
                                 .value;
 
-                        return ElevatedButton(
-                          onPressed: isRunning ? null : _salvarConta,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppSpacing.md,
-                            ),
-                            foregroundColor: Theme.of(
-                              context,
-                            ).colorScheme.onPrimary,
+                        return Container(
+                          decoration: BoxDecoration(
+                            gradient: AppColors.accentGradient,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.neonCyan.withOpacity(0.2),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                          child: isRunning
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
+                          child: ElevatedButton(
+                            onPressed: isRunning ? null : _salvarConta,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: AppColors.void_,
+                              disabledBackgroundColor: Colors.transparent,
+                              disabledForegroundColor:
+                                  AppColors.void_.withOpacity(0.5),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.md,
+                              ),
+                              shadowColor: Colors.transparent,
+                            ),
+                            child: isRunning
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: AppColors.void_,
+                                    ),
+                                  )
+                                : Text(
+                                    _vmAccount
+                                        .accountState.labelEditMode.value
+                                        .toUpperCase(),
+                                    style:
+                                        context.textStyles.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.void_,
                                     ),
                                   ),
-                                )
-                              : Text(
-                                  _vmAccount.accountState.labelEditMode.value,
-                                  style: context.textStyles.titleMedium?.bold,
-                                ),
+                          ),
                         );
                       }),
                     ),
 
                     const SizedBox(width: AppSpacing.md),
 
-                    // BOTÃO EXCLUIR
+                    // DELETE
                     Expanded(
                       child: Watch((_) {
                         final canDelete =
@@ -479,20 +482,21 @@ class _AccountCreateViewState extends State<AccountCreateView> {
 
                         final isBusy = isDeleting || isSaving || isUpdating;
 
-                        return ElevatedButton(
+                        return OutlinedButton(
                           onPressed: canDelete && !isBusy
                               ? _excluirConta
                               : null,
-                          style: ElevatedButton.styleFrom(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.hotMagenta,
+                            side: BorderSide(
+                              color: canDelete && !isBusy
+                                  ? AppColors.hotMagenta.withOpacity(0.5)
+                                  : AppColors.outline,
+                            ),
                             padding: const EdgeInsets.symmetric(
                               vertical: AppSpacing.md,
                             ),
-                            foregroundColor: Theme.of(
-                              context,
-                            ).colorScheme.onPrimary,
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.tertiary,
+                            disabledForegroundColor: AppColors.coolWhiteFaint,
                           ),
                           child: isDeleting
                               ? const SizedBox(
@@ -500,20 +504,23 @@ class _AccountCreateViewState extends State<AccountCreateView> {
                                   width: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
+                                    color: AppColors.hotMagenta,
                                   ),
                                 )
                               : Text(
                                   'EXCLUIR',
-                                  style: context.textStyles.titleMedium?.bold,
+                                  style:
+                                      context.textStyles.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                         );
                       }),
                     ),
                   ],
                 ),
+
+                const SizedBox(height: AppSpacing.xxl),
               ],
             ),
           ),

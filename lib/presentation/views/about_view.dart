@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../core/theme/app_theme.dart';
 import '../widgets/app_drawer.dart';
 
@@ -10,29 +9,71 @@ class AboutView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sobre o Jogo')),
+      appBar: AppBar(title: const Text('SOBRE O JOGO')),
       drawer: AppDrawer(),
       body: SingleChildScrollView(
         padding: AppSpacing.paddingLg,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: AppSpacing.lg),
+
+            // ── Radar icon with accent gradient glow ──
             Center(
-              child: Icon(
-                Icons.videogame_asset,
-                size: 100,
-                color: Theme.of(context).colorScheme.onSecondary,
+              child: Container(
+                width: 88,
+                height: 88,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: AppColors.accentGradient,
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.neonCyan.withOpacity(0.35),
+                      blurRadius: 28,
+                      spreadRadius: 4,
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.radar_rounded,
+                  size: 42,
+                  color: AppColors.void_,
+                ),
               ),
             ),
-            // const SizedBox(height: AppSpacing.lg),
-            // Text(
-            //   'Sobre o Jogo',
-            //   style: context.textStyles.headlineMedium?.bold,
-            //   textAlign: TextAlign.center,
-            // ),
+
+            const SizedBox(height: AppSpacing.lg),
+
+            // ── Title ──
+            Center(
+              child: Text(
+                'INJUSTICE 2 MOBILE',
+                style: context.textStyles.headlineLarge?.copyWith(
+                  color: AppColors.coolWhite,
+                  letterSpacing: 3,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+
+            const SizedBox(height: AppSpacing.sm),
+
+            // ── Cyan→Violet divider ──
+            Center(
+              child: Container(
+                width: 80,
+                height: 2,
+                decoration: BoxDecoration(
+                  gradient: AppColors.accentGradient,
+                  borderRadius: BorderRadius.circular(1),
+                ),
+              ),
+            ),
+
             const SizedBox(height: AppSpacing.xl),
+
             InfoSection(
-              titulo: 'Descrição',
+              titulo: 'DESCRIÇÃO',
               conteudo:
                   'Um jogo épico de RPG onde você controla heróis poderosos, '
                   'explora mundos fantásticos e enfrenta desafios emocionantes. '
@@ -41,7 +82,7 @@ class AboutView extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             InfoSection(
-              titulo: 'Recursos',
+              titulo: 'RECURSOS',
               conteudo:
                   '• Sistema de combate estratégico\n'
                   '• Mais de 50 personagens únicos\n'
@@ -51,28 +92,35 @@ class AboutView extends StatelessWidget {
                   '• Eventos semanais exclusivos',
             ),
             const SizedBox(height: AppSpacing.lg),
-            InfoSection(titulo: 'Versão', conteudo: '1.0.0'),
+            InfoSection(titulo: 'VERSÃO', conteudo: '1.0.0'),
             const SizedBox(height: AppSpacing.lg),
             InfoSection(
-              titulo: 'Desenvolvedores',
+              titulo: 'DESENVOLVEDORES',
               conteudo: 'Team Prof. Roberto',
             ),
             const SizedBox(height: AppSpacing.xl),
+
+            // ── Help button ──
             Center(
               child: OutlinedButton.icon(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Função em desenvolvimento')),
+                    SnackBar(
+                      content: const Text('Função em desenvolvimento'),
+                      backgroundColor: AppColors.surfaceElevated,
+                    ),
                   );
                 },
                 icon: Icon(
-                  Icons.help_outline,
-                  color: Theme.of(context).colorScheme.onSecondary,
+                  Icons.help_outline_rounded,
+                  color: AppColors.neonCyan,
+                  size: 20,
                 ),
                 label: Text(
                   'Ajuda e Suporte',
                   style: context.textStyles.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSecondary,
+                    color: AppColors.neonCyan,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
@@ -80,12 +128,14 @@ class AboutView extends StatelessWidget {
                     horizontal: AppSpacing.lg,
                     vertical: AppSpacing.md,
                   ),
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.onPrimary.withValues(alpha: 0.1),
+                  side: BorderSide(
+                    color: AppColors.neonCyan.withOpacity(0.35),
+                  ),
                 ),
               ),
             ),
+
+            const SizedBox(height: AppSpacing.xl),
           ],
         ),
       ),
@@ -104,21 +154,29 @@ class InfoSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(titulo, style: context.textStyles.titleLarge?.semiBold),
+        Text(
+          titulo,
+          style: context.textStyles.headlineSmall?.copyWith(
+            color: AppColors.coolWhite,
+            letterSpacing: 2,
+          ),
+        ),
         const SizedBox(height: AppSpacing.sm),
         Container(
           width: double.infinity,
           padding: AppSpacing.paddingMd,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.secondary,
+            color: AppColors.surface,
             borderRadius: BorderRadius.circular(AppRadius.md),
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.outline.withValues(alpha: 0.2),
+            border: Border.all(color: AppColors.outline, width: 1),
+          ),
+          child: Text(
+            conteudo,
+            style: context.textStyles.bodyMedium?.copyWith(
+              color: AppColors.coolWhiteMuted,
+              height: 1.6,
             ),
           ),
-          child: Text(conteudo, style: context.textStyles.bodyMedium),
         ),
       ],
     );

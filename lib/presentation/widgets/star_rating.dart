@@ -1,15 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../core/theme/app_theme.dart';
 
 /// Widget para exibir e editar rating de estrelas (1-14)
 /// 
 /// Sistema de cores:
-/// - Até 7 estrelas: amarelas
-/// - De 8 a 14 estrelas: primeiras são rosa (#eb02f7), últimas são amarelas
+/// - Até 7 estrelas: plasma gold com glow
+/// - De 8 a 14 estrelas: primeiras são violeta (neon), últimas são gold
 /// 
 /// Modo interativo:
-/// - Tap simples na estrela N: define N estrelas (amarelas)
-/// - Duplo tap na estrela N: define N + 7 estrelas (N rosas + N amarelas)
+/// - Tap simples na estrela N: define N estrelas (gold)
+/// - Duplo tap na estrela N: define N + 7 estrelas (N violetas + N gold)
 class StarRating extends StatelessWidget {
   final int stars;
   final double size;
@@ -41,7 +42,7 @@ class StarRating extends StatelessWidget {
   }
 }
 
-/// Widget para exibir estrelas (não interativo)
+/// Widget para exibir estrelas (não interativo) with glow effects
 class _DisplayStarRating extends StatelessWidget {
   final int stars;
   final double size;
@@ -53,43 +54,90 @@ class _DisplayStarRating extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Calcula quantas estrelas de cada cor mostrar (máximo 7 estrelas visíveis)
-    // Até 7 estrelas: apenas amarelas
-    // Acima de 7: rosas + amarelas (sem vazias)
-    final int pinkStars;
-    final int yellowStars;
+    final int violetStars;
+    final int goldStars;
     final int emptyStars;
     
     if (stars <= 7) {
-      pinkStars = 0;
-      yellowStars = stars;
+      violetStars = 0;
+      goldStars = stars;
       emptyStars = 7 - stars;
     } else {
-      // stars > 7: mostra (stars-7) rosas + restante amarelas
-      pinkStars = (stars - 7).clamp(0, 7);
-      yellowStars = (7 - pinkStars).clamp(0, 7);
+      violetStars = (stars - 7).clamp(0, 7);
+      goldStars = (7 - violetStars).clamp(0, 7);
       emptyStars = 0;
     }
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Estrelas rosas (8-14 estrelas)
+        // Violet stars with plasma glow
         ...List.generate(
-          pinkStars,
-          (_) => Icon(Icons.star, size: size, color: const Color(0xFFEB02F7)),
+          violetStars,
+          (_) => _GlowStar(
+            icon: Icons.star_rounded,
+            size: size,
+            color: AppColors.plasmaViolet,
+            glowColor: AppColors.plasmaViolet,
+          ),
         ),
-        // Estrelas amarelas
+        // Gold stars with plasma gold glow
         ...List.generate(
-          yellowStars,
-          (_) => Icon(Icons.star, size: size, color: Colors.amber),
+          goldStars,
+          (_) => _GlowStar(
+            icon: Icons.star_rounded,
+            size: size,
+            color: AppColors.plasmaGold,
+            glowColor: AppColors.plasmaGold,
+          ),
         ),
-        // Estrelas vazias (apenas quando <= 7 estrelas)
+        // Empty stars
         ...List.generate(
           emptyStars,
-          (_) => Icon(Icons.star_border, size: size, color: Colors.grey),
+          (_) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: Icon(
+              Icons.star_border_rounded,
+              size: size,
+              color: AppColors.coolWhiteFaint,
+            ),
+          ),
         ),
       ],
+    );
+  }
+}
+
+/// A single star with subtle glow shadow
+class _GlowStar extends StatelessWidget {
+  final IconData icon;
+  final double size;
+  final Color color;
+  final Color glowColor;
+
+  const _GlowStar({
+    required this.icon,
+    required this.size,
+    required this.color,
+    required this.glowColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 1),
+      child: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: glowColor.withOpacity(0.35),
+              blurRadius: size * 0.4,
+              spreadRadius: 0,
+            ),
+          ],
+        ),
+        child: Icon(icon, size: size, color: color),
+      ),
     );
   }
 }
@@ -130,15 +178,13 @@ class _InteractiveStarRatingState extends State<_InteractiveStarRating> {
       _tapTimer = null;
       _pendingTapIndex = null;
 
-      // Duplo tap: toggle entre amarela e rosa
-      final pinkStars = widget.stars > 7 ? (widget.stars - 7).clamp(0, 7) : 0;
-      final isPinkStar = index < pinkStars;
+      // Duplo tap: toggle entre gold e violet
+      final violetStars = widget.stars > 7 ? (widget.stars - 7).clamp(0, 7) : 0;
+      final isVioletStar = index < violetStars;
       
-      if (isPinkStar) {
-        // Estrela rosa → vira amarela (reduz para position estrelas)
+      if (isVioletStar) {
         widget.onStarsChanged(position);
       } else {
-        // Estrela amarela/vazia → vira rosa (position + 7 estrelas)
         widget.onStarsChanged((position + 7).clamp(1, 14));
       }
       return;
@@ -152,22 +198,13 @@ class _InteractiveStarRatingState extends State<_InteractiveStarRating> {
       _tapTimer = null;
       _pendingTapIndex = null;
       
-      // Calcula estado atual
-      final pinkStars = widget.stars > 7 ? (widget.stars - 7).clamp(0, 7) : 0;
-      final isPinkStar = index < pinkStars;
-      final hasPinkStars = widget.stars > 7;
+      final violetStars = widget.stars > 7 ? (widget.stars - 7).clamp(0, 7) : 0;
+      final isVioletStar = index < violetStars;
+      final hasVioletStars = widget.stars > 7;
       
-      // Estrela rosa: não faz nada em tap simples
-      if (isPinkStar) {
-        return;
-      }
+      if (isVioletStar) return;
+      if (hasVioletStars && index >= violetStars) return;
       
-      // Estrela amarela quando há rosa: não faz nada em tap simples
-      if (hasPinkStars && index >= pinkStars) {
-        return;
-      }
-      
-      // Estrela amarela sem rosa ou estrela vazia: toggle
       if (widget.stars == position) {
         widget.onStarsChanged(0);
       } else {
@@ -178,47 +215,59 @@ class _InteractiveStarRatingState extends State<_InteractiveStarRating> {
 
   @override
   Widget build(BuildContext context) {
-    // Calcula quantas estrelas de cada cor para exibição (máximo 7 estrelas visíveis)
-    final int pinkStars;
-    final int yellowStars;
+    final int violetStars;
+    final int goldStars;
     
     if (widget.stars <= 7) {
-      pinkStars = 0;
-      yellowStars = widget.stars;
+      violetStars = 0;
+      goldStars = widget.stars;
     } else {
-      // stars > 7: mostra (stars-7) rosas + restante amarelas
-      pinkStars = (widget.stars - 7).clamp(0, 7);
-      yellowStars = (7 - pinkStars).clamp(0, 7);
+      violetStars = (widget.stars - 7).clamp(0, 7);
+      goldStars = (7 - violetStars).clamp(0, 7);
     }
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: List.generate(7, (index) {
         Color starColor;
+        Color glowColor;
         IconData starIcon;
 
-        if (index < pinkStars) {
-          // Estrela rosa preenchida
-          starColor = const Color(0xFFEB02F7);
-          starIcon = Icons.star;
-        } else if (index < pinkStars + yellowStars) {
-          // Estrela amarela preenchida
-          starColor = Colors.amber;
-          starIcon = Icons.star;
+        if (index < violetStars) {
+          starColor = AppColors.plasmaViolet;
+          glowColor = AppColors.plasmaViolet;
+          starIcon = Icons.star_rounded;
+        } else if (index < violetStars + goldStars) {
+          starColor = AppColors.plasmaGold;
+          glowColor = AppColors.plasmaGold;
+          starIcon = Icons.star_rounded;
         } else {
-          // Estrela vazia
-          starColor = Colors.grey;
-          starIcon = Icons.star_border;
+          starColor = AppColors.coolWhiteFaint;
+          glowColor = Colors.transparent;
+          starIcon = Icons.star_border_rounded;
         }
 
         return GestureDetector(
           onTap: () => _handleStarTap(index),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: Icon(
-              starIcon,
-              size: widget.size,
-              color: starColor,
+            child: Container(
+              decoration: glowColor != Colors.transparent
+                  ? BoxDecoration(
+                      boxShadow: [
+                        BoxShadow(
+                          color: glowColor.withOpacity(0.35),
+                          blurRadius: widget.size * 0.4,
+                          spreadRadius: 0,
+                        ),
+                      ],
+                    )
+                  : null,
+              child: Icon(
+                starIcon,
+                size: widget.size,
+                color: starColor,
+              ),
             ),
           ),
         );

@@ -14,48 +14,9 @@ final class CharacterSharedPreferencesService
   static const String _storageKey = 'characters';
 
   @override
-  Future<CharacterResult> deleteCharacter(String id) async {
-    if (id.trim().isEmpty) {
-      return Error(InputFailure('ID do personagem invalido para exclusao.'));
-    }
-
-    try {
-      final currentResult = await getAllCharacters();
-
-      return await currentResult.fold(
-        onSuccess: (characters) async {
-          final index = characters.indexWhere(
-            (character) => character.id == id,
-          );
-
-          if (index == -1) {
-            return Error(EmptyResultFailure('Personagem nao encontrado.'));
-          }
-
-          final deletedCharacter = characters[index];
-          final updatedCharacters = List<Character>.from(characters)
-            ..removeAt(index);
-
-          await _saveCharacters(updatedCharacters);
-          return Success(deletedCharacter);
-        },
-        onFailure: (failure) async {
-          if (failure is EmptyResultFailure) {
-            return Error(
-              EmptyResultFailure(
-                'Nenhum personagem foi encontrado para excluir.',
-              ),
-            );
-          }
-
-          return Error(failure);
-        },
-      );
-    } catch (e) {
-      return Error(
-        ApiLocalFailure('Shared Preferences - Erro ao excluir personagem: $e'),
-      );
-    }
+  Future<CharacterResult> deleteCharacter(String id) {
+    // TODO: implement deleteCharacter
+    throw UnimplementedError();
   }
 
   @override
@@ -83,37 +44,9 @@ final class CharacterSharedPreferencesService
   }
 
   @override
-  Future<CharacterResult> getCharacterById(String id) async {
-    if (id.trim().isEmpty) {
-      return Error(InputFailure('ID do personagem invalido para busca.'));
-    }
-
-    try {
-      final currentResult = await getAllCharacters();
-
-      return currentResult.fold(
-        onSuccess: (characters) {
-          final match = characters.where((character) => character.id == id);
-
-          if (match.isEmpty) {
-            return Error(EmptyResultFailure('Personagem nao encontrado.'));
-          }
-
-          return Success(match.first);
-        },
-        onFailure: (failure) {
-          if (failure is EmptyResultFailure) {
-            return Error(EmptyResultFailure('Nenhum personagem cadastrado.'));
-          }
-
-          return Error(failure);
-        },
-      );
-    } catch (e) {
-      return Error(
-        ApiLocalFailure('Shared Preferences - Erro ao buscar personagem: $e'),
-      );
-    }
+  Future<CharacterResult> getCharacterById(String id) {
+    // TODO: implement getCharacterById
+    throw UnimplementedError();
   }
 
   @override
@@ -136,56 +69,10 @@ final class CharacterSharedPreferencesService
           return Error(ApiLocalFailure());
         },
       );
+      
     } catch (e) {
       return Error(
         ApiLocalFailure('Shared Preferences - Erro ao salvar personagem: $e'),
-      );
-    }
-  }
-
-  @override
-  Future<CharacterResult> updateCharacter(Character character) async {
-    if (character.id.trim().isEmpty) {
-      return Error(InputFailure('ID do personagem invalido para atualizacao.'));
-    }
-
-    try {
-      final currentResult = await getAllCharacters();
-
-      return await currentResult.fold(
-        onSuccess: (characters) async {
-          final index = characters.indexWhere(
-            (item) => item.id == character.id,
-          );
-
-          if (index == -1) {
-            return Error(
-              EmptyResultFailure('Personagem nao encontrado para atualizacao.'),
-            );
-          }
-
-          final updatedCharacter = character.copyWith(
-            updatedAt: DateTime.now(),
-          );
-          final updatedCharacters = List<Character>.from(characters)
-            ..[index] = updatedCharacter;
-
-          await _saveCharacters(updatedCharacters);
-          return Success(updatedCharacter);
-        },
-        onFailure: (failure) async {
-          if (failure is EmptyResultFailure) {
-            return Error(EmptyResultFailure('Nenhum personagem cadastrado.'));
-          }
-
-          return Error(failure);
-        },
-      );
-    } catch (e) {
-      return Error(
-        ApiLocalFailure(
-          'Shared Preferences - Erro ao atualizar personagem: $e',
-        ),
       );
     }
   }

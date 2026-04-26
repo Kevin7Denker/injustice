@@ -6,15 +6,15 @@ extension ClassUI on CharacterClass {
   Color get color {
     switch (this) {
       case CharacterClass.poderoso:
-        return Colors.deepOrangeAccent;
+        return const Color(0xFFFF6B35); // molten orange
       case CharacterClass.metaHumano:
-        return Colors.yellowAccent;
+        return const Color(0xFFFFD740); // plasma amber
       case CharacterClass.agilidade:
-        return Colors.greenAccent;
+        return const Color(0xFF78FF56); // lime scan
       case CharacterClass.arcano:
-        return Colors.purpleAccent;
+        return const Color(0xFFB45CFF); // plasma violet
       case CharacterClass.tecnologico:
-        return Colors.blueAccent;
+        return const Color(0xFF00F0FF); // neon cyan
     }
   }
 
@@ -38,11 +38,11 @@ extension RarityUI on CharacterRarity {
   Color get color {
     switch (this) {
       case CharacterRarity.lendario:
-        return Colors.purple;
+        return const Color(0xFFB45CFF); // plasma violet
       case CharacterRarity.ouro:
-        return Colors.amber;
+        return const Color(0xFFFFD740); // plasma gold
       case CharacterRarity.prata:
-        return Colors.grey;
+        return const Color(0xFF8B95A5); // titanium
     }
   }
 }

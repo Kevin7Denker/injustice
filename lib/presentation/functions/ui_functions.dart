@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../core/failure/failure.dart';
 import '../../core/messages/app_messages.dart';
 import '../../core/validators/base_validator.dart';

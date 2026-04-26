@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import '../../core/theme/app_theme.dart';
 
 class InputTextField extends StatelessWidget {
@@ -38,8 +37,7 @@ class InputTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final borderRadius = BorderRadius.circular(AppRadius.md);
+    final borderRadius = BorderRadius.circular(14);
 
     return TextFormField(
       key: fieldKey,
@@ -51,54 +49,70 @@ class InputTextField extends StatelessWidget {
       inputFormatters: inputFormatters,
       onFieldSubmitted: onFieldSubmitted,
 
-      style: TextStyle(color: colorScheme.primary),
+      style: const TextStyle(
+        color: AppColors.coolWhite,
+        fontSize: 15,
+        fontWeight: FontWeight.w400,
+      ),
+
+      cursorColor: AppColors.neonCyan,
 
       decoration: InputDecoration(
         labelText: label,
         hintText: hint ?? label,
-        hintStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
-        labelStyle: TextStyle(color: colorScheme.primary),
+        hintStyle: TextStyle(
+          color: AppColors.coolWhiteFaint,
+          fontSize: 14,
+        ),
+        labelStyle: TextStyle(
+          color: AppColors.coolWhiteMuted,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
 
         floatingLabelStyle: TextStyle(
-          color: colorScheme.primary,
-          // color: colorScheme.secondary,
-          fontWeight: FontWeight.bold,
-          backgroundColor: colorScheme.onSecondary,
-          // backgroundColor: colorScheme.onSecondary,
+          color: AppColors.neonCyan,
+          fontWeight: FontWeight.w600,
+          fontSize: 14,
         ),
 
         prefixIcon: prefixIcon != null
-            ? Icon(prefixIcon, color: colorScheme.primary)
+            ? Icon(prefixIcon, color: AppColors.coolWhiteMuted, size: 20)
             : null,
 
         filled: true,
-        fillColor: colorScheme.onSecondary,
+        fillColor: AppColors.surfaceVariant,
 
         border: OutlineInputBorder(borderRadius: borderRadius),
 
         enabledBorder: OutlineInputBorder(
           borderRadius: borderRadius,
-          borderSide: BorderSide(color: colorScheme.primary),
+          borderSide: BorderSide(color: AppColors.outline, width: 1),
         ),
 
         focusedBorder: OutlineInputBorder(
           borderRadius: borderRadius,
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
+          borderSide: BorderSide(color: AppColors.neonCyan, width: 1.5),
         ),
 
         errorBorder: OutlineInputBorder(
           borderRadius: borderRadius,
-          borderSide: BorderSide(color: colorScheme.error),
+          borderSide: BorderSide(color: AppColors.hotMagenta, width: 1),
         ),
         errorStyle: TextStyle(
-          color: colorScheme.tertiary, 
-          // color: Colors.white, 
-          fontWeight: FontWeight.bold,
+          color: AppColors.hotMagentaLight,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
         ),
 
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: borderRadius,
-          borderSide: BorderSide(color: colorScheme.error, width: 2),
+          borderSide: BorderSide(color: AppColors.hotMagenta, width: 1.5),
+        ),
+
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.md,
         ),
       ),
 

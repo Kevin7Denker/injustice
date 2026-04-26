@@ -9,74 +9,100 @@ class AccountSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: AppColors.outline, width: 1),
       ),
-      elevation: 3,
-      clipBehavior: Clip.antiAlias,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [colors.secondary, colors.primary],
+      child: Column(
+        children: [
+          // Top cyan→violet accent line
+          Container(
+            height: 2,
+            margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(2),
+              ),
+              gradient: LinearGradient(
+                colors: [
+                  Colors.transparent,
+                  AppColors.neonCyan.withOpacity(0.8),
+                  AppColors.plasmaViolet.withOpacity(0.6),
+                  Colors.transparent,
+                ],
+              ),
+            ),
           ),
-        ),
-        child: Padding(
-          padding: AppSpacing.paddingMd,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      account.displayName,
-                      style: context.textStyles.headlineLarge
-                          ?.bold
-                          .withColor(colors.onSecondary),
-                      overflow: TextOverflow.ellipsis,
+          Padding(
+            padding: AppSpacing.paddingMd,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        account.displayName.toUpperCase(),
+                        style: context.textStyles.headlineLarge?.copyWith(
+                          color: AppColors.coolWhite,
+                          letterSpacing: 2,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                  Text(
-                    'Lv. ${account.level}',
-                    style: context.textStyles.headlineSmall
-                        ?.bold
-                        .withColor(colors.onSecondary),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _StatItem(
-                    icon: Icons.bolt,
-                    label: 'Energia',
-                    value: account.energy.toString(),
-                    color: Colors.greenAccent,
-                  ),
-                  _StatItem(
-                    icon: Icons.diamond,
-                    label: 'Gemas',
-                    value: account.gems.toString(),
-                    color: Colors.lightBlueAccent,
-                  ),
-                  _StatItem(
-                    icon: Icons.attach_money,
-                    label: 'Gold',
-                    value: account.gold.toStringAsFixed(0),
-                    color: Colors.amberAccent,
-                  ),
-                ],
-              ),
-            ],
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.neonCyan.withOpacity(0.10),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: AppColors.neonCyan.withOpacity(0.25),
+                        ),
+                      ),
+                      child: Text(
+                        'LV.${account.level}',
+                        style: context.textStyles.titleSmall?.copyWith(
+                          color: AppColors.neonCyan,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _StatItem(
+                      icon: Icons.bolt_rounded,
+                      label: 'Energia',
+                      value: account.energy.toString(),
+                      color: AppColors.limeScan,
+                    ),
+                    _StatItem(
+                      icon: Icons.diamond_rounded,
+                      label: 'Gemas',
+                      value: account.gems.toString(),
+                      color: AppColors.techBlue,
+                    ),
+                    _StatItem(
+                      icon: Icons.attach_money_rounded,
+                      label: 'Gold',
+                      value: account.gold.toStringAsFixed(0),
+                      color: AppColors.plasmaGold,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -97,17 +123,31 @@ class _StatItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = Theme.of(context).colorScheme.onSecondary;
-
     return Column(
       children: [
-        Icon(icon, size: 20, color: color),
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: color.withOpacity(0.10),
+          ),
+          child: Icon(icon, size: 18, color: color),
+        ),
         const SizedBox(height: AppSpacing.xs),
         Text(
           value,
-          style: context.textStyles.labelLarge?.semiBold.withColor(textColor),
+          style: context.textStyles.labelLarge?.copyWith(
+            color: AppColors.coolWhite,
+            fontWeight: FontWeight.w700,
+          ),
         ),
-        Text(label, style: context.textStyles.bodySmall?.withColor(textColor)),
+        Text(
+          label,
+          style: context.textStyles.bodySmall?.copyWith(
+            color: AppColors.coolWhiteMuted,
+          ),
+        ),
       ],
     );
   }

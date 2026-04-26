@@ -12,7 +12,6 @@ abstract base class Command<Success, Error>
     implements ICommand<Success, Error> {
   final _running = signal(false);
   final _result = signal<Result<Success, Error>?>(null);
-  Future<Result<Success, Error>>? _inFlight;
 
   //final _error = signal<TError?>(null);
 
@@ -29,24 +28,16 @@ abstract base class Command<Success, Error>
 
   // Método para executar o comando com tratamento
   Future<Result<Success, Error>> call() async {
-    final current = _inFlight;
-    if (current != null) return current; // reaproveita execução em andamento
-
-    _running.value = true; // indica que está rodando
-    _result.value = null; // limpa resultado anterior
-
-    final execution = execute()
-        .then((result) {
-          _result.value = result; // registra resultado para observers
-          return result;
-        })
-        .whenComplete(() {
-          _running.value = false; // indica que terminou
-          _inFlight = null;
-        });
-
-    _inFlight = execution;
-    return execution;
+    if (_running.value) {
+      // Já está rodando — aguarda resultado existente ou retorna o atual
+      return _result.value ?? await execute();
+    }
+    _running.value = true;
+    _result.value = null;
+    final result = await execute();
+    _result.value = result;
+    _running.value = false;
+    return result;
   }
 
   void clear() {
@@ -55,7 +46,6 @@ abstract base class Command<Success, Error>
 
   void reset() {
     _running.value = false;
-    _inFlight = null;
     clear();
   }
 }
@@ -88,8 +78,8 @@ final class CompositeCommand<TOk, TError> extends Command<List<TOk>, TError> {
     final results = <TOk>[];
 
     for (final command in _commands) {
-      final result = await command
-          .call(); // usa o call() para registrar estados
+      final result =
+          await command.call(); // usa o call() para registrar estados
 
       if (result.isFailure) {
         return Error(result.failureValueOrNull as TError);

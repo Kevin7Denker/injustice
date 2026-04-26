@@ -26,20 +26,48 @@ class AccountAttributeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.secondary,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 2),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceVariant,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppColors.outline.withOpacity(0.5), width: 1),
+      ),
       child: Padding(
-        padding: AppSpacing.paddingMd,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm + 2,
+        ),
         child: Row(
           children: [
-            Icon(icon, color: iconColor),
-            const SizedBox(width: 7),
+            // Icon with subtle glow background
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: iconColor.withOpacity(0.10),
+              ),
+              child: Icon(icon, color: iconColor, size: 18),
+            ),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: context.textStyles.labelMedium),
-                  Text(hint, style: context.textStyles.bodySmall),
+                  Text(
+                    label,
+                    style: context.textStyles.labelLarge?.copyWith(
+                      color: AppColors.coolWhite,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    hint,
+                    style: context.textStyles.bodySmall?.copyWith(
+                      color: AppColors.coolWhiteFaint,
+                    ),
+                  ),
                 ],
               ),
             ),

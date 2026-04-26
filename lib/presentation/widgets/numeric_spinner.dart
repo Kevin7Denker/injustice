@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import '../../core/theme/app_theme.dart';
 
 /// Widget personalizado para seleção numérica com botões de incremento/decremento
@@ -118,24 +117,24 @@ class _NumericSpinnerState extends State<NumericSpinner> {
           Text(
             widget.label!,
             style: context.textStyles.labelLarge?.withColor(
-              Theme.of(context).colorScheme.onSurfaceVariant,
+              AppColors.coolWhiteMuted,
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
         ],
         Container(
           decoration: BoxDecoration(
+            color: AppColors.surface,
             border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSecondary.withValues(alpha: 0.3),
+              color: AppColors.outline,
+              width: 1,
             ),
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Botão de decremento
+              // Decrement button
               Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -144,24 +143,21 @@ class _NumericSpinnerState extends State<NumericSpinner> {
                     left: Radius.circular(AppRadius.md),
                   ),
                   child: Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
+                    padding: const EdgeInsets.all(AppSpacing.sm + 2),
                     child: Icon(
-                      Icons.remove,
+                      Icons.remove_rounded,
+                      size: 18,
                       color: canDecrement
-                          ? Theme.of(
-                              context,
-                            ).colorScheme.onSecondary.withValues(alpha: 0.7)
-                          : Theme.of(
-                              context,
-                            ).colorScheme.primary,
+                          ? AppColors.neonCyan
+                          : AppColors.coolWhiteFaint,
                     ),
                   ),
                 ),
               ),
 
-              // Campo de entrada
+              // Input field
               Container(
-                width: 100,
+                width: 70,
                 padding: AppSpacing.horizontalSm,
                 child: TextField(
                   controller: _controller,
@@ -169,6 +165,7 @@ class _NumericSpinnerState extends State<NumericSpinner> {
                   textAlign: TextAlign.center,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  cursorColor: AppColors.neonCyan,
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                     isDense: true,
@@ -176,12 +173,15 @@ class _NumericSpinnerState extends State<NumericSpinner> {
                       vertical: AppSpacing.sm,
                     ),
                   ),
-                  style: context.textStyles.titleMedium?.bold,
+                  style: context.textStyles.titleMedium?.copyWith(
+                    color: AppColors.coolWhite,
+                    fontWeight: FontWeight.w700,
+                  ),
                   onSubmitted: (_) => _validateAndUpdate(),
                 ),
               ),
 
-              // Botão de incremento
+              // Increment button
               Material(
                 color: Colors.transparent,
                 child: InkWell(
@@ -190,16 +190,13 @@ class _NumericSpinnerState extends State<NumericSpinner> {
                     right: Radius.circular(AppRadius.md),
                   ),
                   child: Container(
-                    padding: const EdgeInsets.all(AppSpacing.md),
+                    padding: const EdgeInsets.all(AppSpacing.sm + 2),
                     child: Icon(
-                      Icons.add,
+                      Icons.add_rounded,
+                      size: 18,
                       color: canIncrement
-                          ? Theme.of(
-                              context,
-                            ).colorScheme.onSecondary.withValues(alpha: 0.7)
-                          : Theme.of(
-                              context,
-                            ).colorScheme.primary,
+                          ? AppColors.neonCyan
+                          : AppColors.coolWhiteFaint,
                     ),
                   ),
                 ),
