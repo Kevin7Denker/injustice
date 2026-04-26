@@ -16,6 +16,7 @@ class AppRouteNames {
 
 /// Paths to keep URL structure consistent
 class AppPaths {
+  static const root = '/';
   static const home = '/home';
   static const about = '/about';
   static const accountCreate = '/account-create';
@@ -29,6 +30,7 @@ class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: AppPaths.home,
     routes: <RouteBase>[
+      GoRoute(path: AppPaths.root, redirect: (_, __) => AppPaths.home),
       GoRoute(
         path: AppPaths.home,
         name: AppRouteNames.home,

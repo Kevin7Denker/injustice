@@ -9,7 +9,6 @@ import '../../core/theme/app_theme.dart';
 import '../controllers/account_viewmodel.dart';
 import '../widgets/app_drawer.dart';
 
-
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
@@ -33,11 +32,10 @@ class _HomeViewState extends State<HomeView> {
       appBar: AppBar(title: const Text('Inj2 Mobile - Player Acc')),
       drawer: AppDrawer(),
       body: Watch((context) {
-       
         if (_vmAccount.commands.getAccountCommand.isExecuting.value) {
           return const Center(child: CircularProgressIndicator());
         }
-       
+
         if (!_vmAccount.accountState.hasAccount.value) {
           return _buildAboutContent(context);
         }
@@ -196,7 +194,8 @@ class _HomeViewState extends State<HomeView> {
             // Botão para ver personagens
             Center(
               child: FilledButton.icon(
-                onPressed: () => context.goNamed(AppRouteNames.characters),
+                onPressed: () =>
+                    context.goNamed(AppRouteNames.characters, extra: account),
                 // onPressed: () => context.push(AppRoutes.personagens),
                 icon: const Icon(Icons.people),
                 label: const Text('Ver Meus Personagens'),

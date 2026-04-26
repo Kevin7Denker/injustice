@@ -21,50 +21,235 @@ class CharactersBody extends StatelessWidget {
     required this.account,
   });
 
+  Future<void> _fetchCharacters() {
+    return viewModel.commands.fetchCharacters();
+  }
+
+  void _showCharacterDetails(BuildContext context, Character character) {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (_) => _CharacterDetailsSheet(character: character),
+    );
+  }
+
+  Future<void> _editCharacter(BuildContext context, Character character) async {
+    final updatedCharacter = await showModalBottomSheet<Character>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (_) => CharacterFormSheet(character: character),
+    );
+
+    if (!context.mounted || updatedCharacter == null) return;
+
+    await viewModel.commands.updateCharacter(updatedCharacter);
+
+    if (!context.mounted) return;
+
+    final message = viewModel.charactersState.message.value;
+    final hasError = message != null && message.trim().isNotEmpty;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            hasError
+                ? message
+                : '${updatedCharacter.name} atualizado com sucesso',
+          ),
+        ),
+      );
+  }
+
+  Future<void> _removeCharacterFromList(
+    BuildContext context,
+    Character character,
+  ) async {
+    final previousLength = viewModel.charactersState.state.value.length;
+
+    await viewModel.commands.deleteCharacter(character);
+
+    if (!context.mounted) return;
+
+    final message = viewModel.charactersState.message.value;
+    final hasError = message != null && message.trim().isNotEmpty;
+    final currentLength = viewModel.charactersState.state.value.length;
+    final wasRemoved = currentLength < previousLength;
+
+    if (wasRemoved && !hasError) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text('${character.name} excluido com sucesso'),
+            action: SnackBarAction(
+              label: 'Desfazer',
+              onPressed: () async {
+                await viewModel.commands.addCharacter(character);
+
+                if (!context.mounted) return;
+
+                final restoreError = viewModel.charactersState.message.value;
+                if (restoreError == null || restoreError.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('${character.name} restaurado')),
+                  );
+                }
+              },
+            ),
+          ),
+        );
+
+      return;
+    }
+
+    final fallbackMessage = message ?? 'Nao foi possivel excluir o personagem.';
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(fallbackMessage)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Watch((context) {
+      final state = viewModel.charactersState;
       final isLoading =
           viewModel.commands.getAllCharactersCommand.isExecuting.value;
-
-      final characters = viewModel.charactersState.sortedCharacters.value;
+      final errorMessage = state.message.value;
+      final hasError = errorMessage != null && errorMessage.trim().isNotEmpty;
+      final characters = state.sortedCharacters.value;
+      final hasCharacters = characters.isNotEmpty;
+      final screenWidth = MediaQuery.sizeOf(context).width;
+      final horizontalPadding = screenWidth < 360
+          ? AppSpacing.sm
+          : AppSpacing.md;
 
       return RefreshIndicator(
-        onRefresh: () async {},
+        onRefresh: _fetchCharacters,
         child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             /// Header
             SliverToBoxAdapter(
               child: Padding(
-                padding: AppSpacing.paddingMd,
-                child: AccountSummaryCard(account: account),
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  AppSpacing.md,
+                  horizontalPadding,
+                  AppSpacing.sm,
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 760),
+                    child: AccountSummaryCard(account: account),
+                  ),
+                ),
               ),
             ),
 
             /// Filtros
-            SliverToBoxAdapter(child: FilterPanel(viewModel: viewModel)),
+            SliverToBoxAdapter(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 760),
+                  child: FilterPanel(viewModel: viewModel),
+                ),
+              ),
+            ),
+
+            if (isLoading && hasCharacters)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: AppSpacing.xs,
+                  ),
+                  child: const LinearProgressIndicator(minHeight: 2),
+                ),
+              ),
+
+            if (hasError && hasCharacters)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    horizontalPadding,
+                    AppSpacing.sm,
+                    horizontalPadding,
+                    AppSpacing.sm,
+                  ),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 760),
+                      child: _ErrorStateCard(
+                        message: errorMessage,
+                        onRetry: _fetchCharacters,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
 
             /// Conteúdo (loading | empty | lista)
-            if (isLoading)
+            if (isLoading && !hasCharacters)
               SliverFillRemaining(
                 hasScrollBody: false,
-                child: LoadingIndicator(message: 'Carregando personagens...'),
+                child: Semantics(
+                  liveRegion: true,
+                  label: 'Carregando personagens',
+                  child: const LoadingIndicator(
+                    message: 'Carregando personagens...',
+                  ),
+                ),
               )
-            else if (characters.isEmpty)
+            else if (hasError && !hasCharacters)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Semantics(
+                  liveRegion: true,
+                  label: 'Erro ao carregar personagens',
+                  child: EmptyState(
+                    icon: Icons.cloud_off_rounded,
+                    title: 'Nao foi possivel carregar',
+                    description: errorMessage,
+                    action: Semantics(
+                      button: true,
+                      label: 'Tentar novamente',
+                      child: ElevatedButton.icon(
+                        onPressed: _fetchCharacters,
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Tentar novamente'),
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            else if (!hasCharacters)
               SliverFillRemaining(
                 hasScrollBody: false,
                 child: EmptyState.noCharacters(),
               )
             else
               SliverPadding(
-                padding: AppSpacing.paddingMd,
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                 sliver: SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final character = characters[index];
-                    return CharacterListItem(
-                      character: character,
-                      onDelete: () {},
-                      onTap: () {},
+                    return Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 760),
+                        child: CharacterListItem(
+                          character: character,
+                          onEdit: () => _editCharacter(context, character),
+                          onDelete: () =>
+                              _removeCharacterFromList(context, character),
+                          onTap: () =>
+                              _showCharacterDetails(context, character),
+                        ),
+                      ),
                     );
                   }, childCount: characters.length),
                 ),
@@ -76,56 +261,56 @@ class CharactersBody extends StatelessWidget {
   }
 }
 
-// class EmptyState extends StatelessWidget {
-//   const EmptyState({super.key});
+class _ErrorStateCard extends StatelessWidget {
+  final String message;
+  final Future<void> Function() onRetry;
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Center(
-//       child: Padding(
-//         padding: const EdgeInsets.symmetric(
-//           horizontal: AppSpacing.xxl,
-//           vertical: AppSpacing.xxl,
-//         ),
-//         child: Column(
-//           // mainAxisSize: MainAxisSize.max,
-//           // mainAxisAlignment: MainAxisAlignment.start,
-//           children: [
-//             Icon(
-//               Icons.people_outline,
-//               size: 72,
-//               color: Theme.of(context).colorScheme.outline,
-//             ),
-//             const SizedBox(height: AppSpacing.md),
-//             Text(
-//               'Nenhum personagem encontrado',
-//               textAlign: TextAlign.center,
-//               style: context.textStyles.titleMedium?.semiBold,
-//             ),
-//             const SizedBox(height: AppSpacing.sm),
-//             Text(
-//               'Adicione seu primeiro personagem usando o botão +',
-//               textAlign: TextAlign.center,
-//               style: context.textStyles.bodyMedium?.withColor(
-//                 Theme.of(context).colorScheme.onSurfaceVariant,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+  const _ErrorStateCard({required this.message, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Card(
+      color: colorScheme.errorContainer,
+      child: Padding(
+        padding: AppSpacing.paddingMd,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.error_outline, color: colorScheme.onErrorContainer),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(
+                message,
+                style: context.textStyles.bodyMedium?.withColor(
+                  colorScheme.onErrorContainer,
+                ),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            FilledButton.tonal(
+              onPressed: onRetry,
+              child: const Text('Tentar novamente'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 /// Item da lista de personagens
 class CharacterListItem extends StatelessWidget {
   final Character character;
+  final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onTap;
 
   const CharacterListItem({
     super.key,
     required this.character,
+    required this.onEdit,
     required this.onDelete,
     required this.onTap,
   });
@@ -156,7 +341,7 @@ class CharacterListItem extends StatelessWidget {
       ),
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd) {
-          onTap();
+          onEdit();
           return false;
         } else {
           return await showDialog<bool>(
@@ -184,75 +369,588 @@ class CharacterListItem extends StatelessWidget {
           onDelete();
         }
       },
-      child: Card(
-        color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.9),
-        margin: const EdgeInsets.only(bottom: AppSpacing.md),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          child: Padding(
-            padding: AppSpacing.paddingMd,
-            child: Row(
+      child: Semantics(
+        button: true,
+        label:
+            'Personagem ${character.name}, nivel ${character.level}, classe ${character.characterClass.displayName}, ${character.stars} estrelas',
+        hint:
+            'Toque para detalhes. Deslize para a direita para editar e para a esquerda para remover.',
+        child: Card(
+          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.9),
+          margin: const EdgeInsets.only(bottom: AppSpacing.md),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            child: Padding(
+              padding: AppSpacing.paddingMd,
+              child: Row(
+                children: [
+                  // Indicador de raridade
+                  Container(
+                    width: 4,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: character.rarity.color,
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  // Conteúdo principal
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                character.name,
+                                style: context.textStyles.titleMedium?.semiBold,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Text(
+                              'Nv. ${character.level}',
+                              style: context.textStyles.labelLarge?.withColor(
+                                Theme.of(context).colorScheme.onSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Row(
+                          children: [
+                            Icon(
+                              character.characterClass.icon,
+                              size: 16,
+                              color: character.characterClass.color,
+                            ),
+                            const SizedBox(width: AppSpacing.xs),
+                            Text(
+                              character.characterClass.displayName,
+                              style: context.textStyles.bodySmall?.withColor(
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        StarRating(stars: character.stars, size: 14),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CharacterDetailsSheet extends StatelessWidget {
+  final Character character;
+
+  const _CharacterDetailsSheet({required this.character});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.sm,
+          AppSpacing.lg,
+          AppSpacing.xl,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              character.name,
+              style: context.textStyles.headlineSmall?.semiBold,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
               children: [
-                // Indicador de raridade
-                Container(
-                  width: 4,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: character.rarity.color,
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                _CharacterInfoChip(
+                  icon: Icons.military_tech,
+                  label: character.rarity.displayName,
+                  color: character.rarity.color,
+                ),
+                _CharacterInfoChip(
+                  icon: character.characterClass.icon,
+                  label: character.characterClass.displayName,
+                  color: character.characterClass.color,
+                ),
+                _CharacterInfoChip(
+                  icon: Icons.balance,
+                  label: character.alignment.displayName,
+                  color: colorScheme.primary,
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
+            StarRating(stars: character.stars),
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              children: [
+                Expanded(
+                  child: _CharacterStatTile(
+                    icon: Icons.trending_up,
+                    label: 'Nivel',
+                    value: '${character.level}',
                   ),
                 ),
-                const SizedBox(width: AppSpacing.md),
-                // Conteúdo principal
+                const SizedBox(width: AppSpacing.sm),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              character.name,
-                              style: context.textStyles.titleMedium?.semiBold,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
-                          Text(
-                            'Nv. ${character.level}',
-                            style: context.textStyles.labelLarge?.withColor(
-                              Theme.of(context).colorScheme.onSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Row(
-                        children: [
-                          Icon(
-                            character.characterClass.icon,
-                            size: 16,
-                            color: character.characterClass.color,
-                          ),
-                          const SizedBox(width: AppSpacing.xs),
-                          Text(
-                            character.characterClass.displayName,
-                            style: context.textStyles.bodySmall?.withColor(
-                              Theme.of(context).colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      StarRating(stars: character.stars, size: 14),
-                    ],
+                  child: _CharacterStatTile(
+                    icon: Icons.warning_amber_rounded,
+                    label: 'Ameaca',
+                    value: '${character.threat}',
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: AppSpacing.sm),
+            Row(
+              children: [
+                Expanded(
+                  child: _CharacterStatTile(
+                    icon: Icons.flash_on,
+                    label: 'Ataque',
+                    value: '${character.attack}',
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: _CharacterStatTile(
+                    icon: Icons.favorite,
+                    label: 'Vida',
+                    value: '${character.health}',
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CharacterFormSheet extends StatefulWidget {
+  final Character? character;
+
+  const CharacterFormSheet({super.key, this.character});
+
+  bool get isEditMode => character != null;
+
+  @override
+  State<CharacterFormSheet> createState() => _CharacterFormSheetState();
+}
+
+class _CharacterFormSheetState extends State<CharacterFormSheet> {
+  final _formKey = GlobalKey<FormState>();
+
+  late final TextEditingController _nameController;
+  late final TextEditingController _levelController;
+  late final TextEditingController _starsController;
+  late final TextEditingController _threatController;
+  late final TextEditingController _attackController;
+  late final TextEditingController _healthController;
+
+  late CharacterClass _selectedClass;
+  late CharacterRarity _selectedRarity;
+  late CharacterAlignment _selectedAlignment;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final character = widget.character;
+
+    if (character != null) {
+      _nameController = TextEditingController(text: character.name);
+      _levelController = TextEditingController(
+        text: character.level.toString(),
+      );
+      _starsController = TextEditingController(
+        text: character.stars.toString(),
+      );
+      _threatController = TextEditingController(
+        text: character.threat.toString(),
+      );
+      _attackController = TextEditingController(
+        text: character.attack.toString(),
+      );
+      _healthController = TextEditingController(
+        text: character.health.toString(),
+      );
+
+      _selectedClass = character.characterClass;
+      _selectedRarity = character.rarity;
+      _selectedAlignment = character.alignment;
+      return;
+    }
+
+    _nameController = TextEditingController();
+    _levelController = TextEditingController(text: '1');
+    _starsController = TextEditingController(text: '1');
+    _threatController = TextEditingController(text: '0');
+    _attackController = TextEditingController(text: '0');
+    _healthController = TextEditingController(text: '0');
+
+    _selectedClass = CharacterClass.poderoso;
+    _selectedRarity = CharacterRarity.prata;
+    _selectedAlignment = CharacterAlignment.heroi;
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _levelController.dispose();
+    _starsController.dispose();
+    _threatController.dispose();
+    _attackController.dispose();
+    _healthController.dispose();
+    super.dispose();
+  }
+
+  String? _validateName(String? value) {
+    final text = value?.trim() ?? '';
+    if (text.isEmpty) return 'Informe o nome';
+    if (text.length < 2) return 'Nome muito curto';
+    return null;
+  }
+
+  String? _validateInt(
+    String? value, {
+    required String fieldLabel,
+    required int min,
+    int? max,
+  }) {
+    final parsed = int.tryParse(value?.trim() ?? '');
+    if (parsed == null) return '$fieldLabel invalido';
+    if (parsed < min) return '$fieldLabel deve ser >= $min';
+    if (max != null && parsed > max) return '$fieldLabel deve ser <= $max';
+    return null;
+  }
+
+  void _submit() {
+    final formState = _formKey.currentState;
+    if (formState == null || !formState.validate()) return;
+
+    final now = DateTime.now();
+    final characterInEdition = widget.character;
+
+    final character = characterInEdition != null
+        ? characterInEdition.copyWith(
+            name: _nameController.text.trim(),
+            level: int.parse(_levelController.text.trim()),
+            stars: int.parse(_starsController.text.trim()),
+            threat: int.parse(_threatController.text.trim()),
+            attack: int.parse(_attackController.text.trim()),
+            health: int.parse(_healthController.text.trim()),
+            characterClass: _selectedClass,
+            rarity: _selectedRarity,
+            alignment: _selectedAlignment,
+            updatedAt: now,
+          )
+        : Character(
+            id: now.microsecondsSinceEpoch.toString(),
+            name: _nameController.text.trim(),
+            level: int.parse(_levelController.text.trim()),
+            stars: int.parse(_starsController.text.trim()),
+            threat: int.parse(_threatController.text.trim()),
+            attack: int.parse(_attackController.text.trim()),
+            health: int.parse(_healthController.text.trim()),
+            characterClass: _selectedClass,
+            rarity: _selectedRarity,
+            alignment: _selectedAlignment,
+            createdAt: now,
+            updatedAt: now,
+          );
+
+    Navigator.of(context).pop(character);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final isEditMode = widget.isEditMode;
+
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.sm,
+          AppSpacing.lg,
+          AppSpacing.lg + mediaQuery.viewInsets.bottom,
+        ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                isEditMode ? 'Editar personagem' : 'Novo personagem',
+                style: context.textStyles.headlineSmall?.semiBold,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              TextFormField(
+                controller: _nameController,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'Nome',
+                  prefixIcon: Icon(Icons.badge_outlined),
+                ),
+                validator: _validateName,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              DropdownButtonFormField<CharacterClass>(
+                initialValue: _selectedClass,
+                decoration: const InputDecoration(
+                  labelText: 'Classe',
+                  prefixIcon: Icon(Icons.category_outlined),
+                ),
+                items: CharacterClass.values
+                    .map(
+                      (item) => DropdownMenuItem(
+                        value: item,
+                        child: Text(item.displayName),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value == null) return;
+                  setState(() => _selectedClass = value);
+                },
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<CharacterRarity>(
+                      initialValue: _selectedRarity,
+                      decoration: const InputDecoration(
+                        labelText: 'Raridade',
+                        prefixIcon: Icon(Icons.military_tech_outlined),
+                      ),
+                      items: CharacterRarity.values
+                          .map(
+                            (item) => DropdownMenuItem(
+                              value: item,
+                              child: Text(item.displayName),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        if (value == null) return;
+                        setState(() => _selectedRarity = value);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: DropdownButtonFormField<CharacterAlignment>(
+                      initialValue: _selectedAlignment,
+                      decoration: const InputDecoration(
+                        labelText: 'Alinhamento',
+                        prefixIcon: Icon(Icons.balance_outlined),
+                      ),
+                      items: CharacterAlignment.values
+                          .map(
+                            (item) => DropdownMenuItem(
+                              value: item,
+                              child: Text(item.displayName),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) {
+                        if (value == null) return;
+                        setState(() => _selectedAlignment = value);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _levelController,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                        labelText: 'Nivel',
+                        prefixIcon: Icon(Icons.trending_up),
+                      ),
+                      validator: (value) => _validateInt(
+                        value,
+                        fieldLabel: 'Nivel',
+                        min: 1,
+                        max: 80,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _starsController,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                        labelText: 'Estrelas',
+                        prefixIcon: Icon(Icons.star_outline),
+                      ),
+                      validator: (value) => _validateInt(
+                        value,
+                        fieldLabel: 'Estrelas',
+                        min: 1,
+                        max: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _threatController,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                        labelText: 'Ameaca',
+                        prefixIcon: Icon(Icons.warning_amber_outlined),
+                      ),
+                      validator: (value) =>
+                          _validateInt(value, fieldLabel: 'Ameaca', min: 0),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _attackController,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.next,
+                      decoration: const InputDecoration(
+                        labelText: 'Ataque',
+                        prefixIcon: Icon(Icons.flash_on_outlined),
+                      ),
+                      validator: (value) =>
+                          _validateInt(value, fieldLabel: 'Ataque', min: 0),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _healthController,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.done,
+                      decoration: const InputDecoration(
+                        labelText: 'Vida',
+                        prefixIcon: Icon(Icons.favorite_outline),
+                      ),
+                      validator: (value) =>
+                          _validateInt(value, fieldLabel: 'Vida', min: 0),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Cancelar'),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: _submit,
+                      icon: Icon(isEditMode ? Icons.save_outlined : Icons.add),
+                      label: Text(isEditMode ? 'Salvar' : 'Adicionar'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _CharacterInfoChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+
+  const _CharacterInfoChip({
+    required this.icon,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Chip(
+      avatar: Icon(icon, size: 16, color: color),
+      label: Text(label),
+      visualDensity: VisualDensity.compact,
+    );
+  }
+}
+
+class _CharacterStatTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+
+  const _CharacterStatTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: AppSpacing.paddingMd,
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 18),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: context.textStyles.labelMedium),
+                Text(value, style: context.textStyles.titleMedium?.semiBold),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

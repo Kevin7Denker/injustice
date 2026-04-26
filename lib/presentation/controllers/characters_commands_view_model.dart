@@ -9,16 +9,24 @@ class CharactersCommandsViewModel {
   final CharactersStateViewmodel state;
   final GetAllCharactersCommand _getAccountCommand;
   final CreateCharacterCommand _createCharacterCommand;
+  final UpdateCharacterCommand _updateCharacterCommand;
+  final DeleteCharacterCommand _deleteCharacterCommand;
 
   CharactersCommandsViewModel({
     required this.state,
     required GetAllCharactersCommand getAccountCommand,
     required CreateCharacterCommand createCharacterCommand,
+    required UpdateCharacterCommand updateCharacterCommand,
+    required DeleteCharacterCommand deleteCharacterCommand,
   }) : _getAccountCommand = getAccountCommand,
-       _createCharacterCommand = createCharacterCommand {
+       _createCharacterCommand = createCharacterCommand,
+       _updateCharacterCommand = updateCharacterCommand,
+       _deleteCharacterCommand = deleteCharacterCommand {
     // Observers para cada comando
     _observeGetAllCharacters();
     _observeCreateCharacter();
+    _observeUpdateCharacter();
+    _observeDeleteCharacter();
   }
 
   // ========================================================
@@ -26,6 +34,8 @@ class CharactersCommandsViewModel {
   // ========================================================
   GetAllCharactersCommand get getAllCharactersCommand => _getAccountCommand;
   CreateCharacterCommand get createCharacterCommand => _createCharacterCommand;
+  UpdateCharacterCommand get updateCharacterCommand => _updateCharacterCommand;
+  DeleteCharacterCommand get deleteCharacterCommand => _deleteCharacterCommand;
 
   // ========================================================
   //   MÉTODO GENÉRICO DE OBSERVAÇÃO DE COMANDOS
@@ -75,14 +85,50 @@ class CharactersCommandsViewModel {
           state.setMessage(err.msg), // registra o erro no estado
     );
   }
+
   /// Criar um novo personagem
-  void _observeCreateCharacter() {  
+  void _observeCreateCharacter() {
     _observeCommand<Character>(
       _createCharacterCommand,
       onSuccess: (newCharacter) {
         final currentList = state.state.value;
-        final newlist = [...currentList, newCharacter]; // Adiciona o novo personagem à lista
-        state.state.value = newlist; 
+        final newlist = [
+          ...currentList,
+          newCharacter,
+        ]; // Adiciona o novo personagem à lista
+        state.state.value = newlist;
+      },
+      onFailure: (err) =>
+          state.setMessage(err.msg), // registra o erro no estado
+    );
+  }
+
+  /// Exclui um personagem
+  void _observeDeleteCharacter() {
+    _observeCommand<Character>(
+      _deleteCharacterCommand,
+      onSuccess: (deletedCharacter) {
+        state.state.value = state.state.value
+            .where((character) => character.id != deletedCharacter.id)
+            .toList();
+      },
+      onFailure: (err) =>
+          state.setMessage(err.msg), // registra o erro no estado
+    );
+  }
+
+  /// Atualiza um personagem
+  void _observeUpdateCharacter() {
+    _observeCommand<Character>(
+      _updateCharacterCommand,
+      onSuccess: (updatedCharacter) {
+        state.state.value = state.state.value.map((character) {
+          if (character.id == updatedCharacter.id) {
+            return updatedCharacter;
+          }
+
+          return character;
+        }).toList();
       },
       onFailure: (err) =>
           state.setMessage(err.msg), // registra o erro no estado
@@ -103,5 +149,17 @@ class CharactersCommandsViewModel {
   Future<void> addCharacter(Character character) async {
     state.clearMessage(); // Limpa mensagens anteriores
     await _createCharacterCommand.executeWith((character: character));
+  }
+
+  /// atualiza personagem e atualiza o estado
+  Future<void> updateCharacter(Character character) async {
+    state.clearMessage(); // Limpa mensagens anteriores
+    await _updateCharacterCommand.executeWith((character: character));
+  }
+
+  /// remove personagem e atualiza o estado
+  Future<void> deleteCharacter(Character character) async {
+    state.clearMessage(); // Limpa mensagens anteriores
+    await _deleteCharacterCommand.executeWith((id: character.id));
   }
 }

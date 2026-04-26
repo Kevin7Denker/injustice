@@ -19,7 +19,6 @@ void main() {
         theme: AppTheme.lightTheme,
         darkTheme: AppTheme.darkTheme,
         themeMode: themeController.themeMode.value,
-        //home: const MyHomePage(title: 'Flutter Demo Home Page'),
         routerConfig: AppRouter.router,
       ),
     ),
