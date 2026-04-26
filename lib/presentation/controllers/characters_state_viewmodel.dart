@@ -68,6 +68,9 @@ class CharactersStateViewmodel {
   /// Indica se o painel de filtros está expandido ou não
   final isFilterPanelExpanded = signal(false);
 
+  /// Estado de expansao por secao no painel de filtros
+  final _sectionExpanded = signal<Map<String, bool>>({});
+
   /// Ordenação
   final sortBy = signal<SortBy>(SortBy.name);
   final sortOrder = signal<SortOrder>(SortOrder.ascending);
@@ -262,6 +265,16 @@ class CharactersStateViewmodel {
 
   void toggleFilterPanel() {
     isFilterPanelExpanded.value = !isFilterPanelExpanded.value;
+  }
+
+  bool isSectionExpanded(String sectionKey) {
+    return _sectionExpanded.value[sectionKey] ?? true;
+  }
+
+  void toggleSection(String sectionKey) {
+    final current = Map<String, bool>.from(_sectionExpanded.value);
+    current[sectionKey] = !(current[sectionKey] ?? true);
+    _sectionExpanded.value = current;
   }
 
   void setLevelFilter(LevelFilter filter) {
