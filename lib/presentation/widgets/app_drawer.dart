@@ -128,9 +128,9 @@ class AppDrawer extends StatelessWidget {
                   padding: const EdgeInsets.all(AppSpacing.lg),
                   child: Text(
                     'v1.0.0',
-                    style: Theme.of(context).textTheme.bodySmall?.withColor(
-                          AppColors.coolWhiteFaint,
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.withColor(AppColors.coolWhiteFaint),
                   ),
                 ),
               ],
@@ -182,19 +182,19 @@ class _DrawerHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'INJUSTICE 2',
+                  'injustice',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: AppColors.coolWhite,
-                        letterSpacing: 3,
-                      ),
+                    color: AppColors.coolWhite,
+                    letterSpacing: 3,
+                  ),
                 ),
                 Text(
                   'MOBILE',
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: AppColors.neonCyan,
-                        letterSpacing: 6,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    color: AppColors.neonCyan,
+                    letterSpacing: 6,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ],
             ),
@@ -286,9 +286,9 @@ class _NavItem extends StatelessWidget {
               Text(
                 label,
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: textColor,
-                      fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                    ),
+                  color: textColor,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                ),
               ),
             ],
           ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../widgets/app_drawer.dart';
 
-/// Página de informações sobre o jogo
 class AboutView extends StatelessWidget {
   const AboutView({super.key});
 
@@ -18,7 +17,6 @@ class AboutView extends StatelessWidget {
           children: [
             const SizedBox(height: AppSpacing.lg),
 
-            // ── Radar icon with accent gradient glow ──
             Center(
               child: Container(
                 width: 88,
@@ -44,10 +42,9 @@ class AboutView extends StatelessWidget {
 
             const SizedBox(height: AppSpacing.lg),
 
-            // ── Title ──
             Center(
               child: Text(
-                'INJUSTICE 2 MOBILE',
+                'INJUSTICE',
                 style: context.textStyles.headlineLarge?.copyWith(
                   color: AppColors.coolWhite,
                   letterSpacing: 3,
@@ -58,7 +55,6 @@ class AboutView extends StatelessWidget {
 
             const SizedBox(height: AppSpacing.sm),
 
-            // ── Cyan→Violet divider ──
             Center(
               child: Container(
                 width: 80,
@@ -96,11 +92,10 @@ class AboutView extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
             InfoSection(
               titulo: 'DESENVOLVEDORES',
-              conteudo: 'Team Prof. Roberto',
+              conteudo: 'Kevin Denker & Prof. Roberto',
             ),
             const SizedBox(height: AppSpacing.xl),
 
-            // ── Help button ──
             Center(
               child: OutlinedButton.icon(
                 onPressed: () {
@@ -128,9 +123,7 @@ class AboutView extends StatelessWidget {
                     horizontal: AppSpacing.lg,
                     vertical: AppSpacing.md,
                   ),
-                  side: BorderSide(
-                    color: AppColors.neonCyan.withOpacity(0.35),
-                  ),
+                  side: BorderSide(color: AppColors.neonCyan.withOpacity(0.35)),
                 ),
               ),
             ),
