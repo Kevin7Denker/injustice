@@ -10,7 +10,6 @@ import '../di/dependency_injection.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-/// Route names for easier referencing
 class AppRouteNames {
   static const login = 'login';
   static const home = 'home';
@@ -19,7 +18,6 @@ class AppRouteNames {
   static const characters = 'characters';
 }
 
-/// Paths to keep URL structure consistent
 class AppPaths {
   static const login = '/login';
   static const home = '/home';
@@ -28,7 +26,6 @@ class AppPaths {
   static const characters = '/characters';
 }
 
-/// app routers using go_router
 class AppRouter {
   AppRouter._();
 
@@ -103,7 +100,6 @@ class AppRouter {
     ],
   );
 
-  /// Cinematic fade + vertical slide transition
   static CustomTransitionPage _buildPage({
     required GoRouterState state,
     required Widget child,

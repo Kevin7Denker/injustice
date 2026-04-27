@@ -28,6 +28,9 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders += mapOf(
+            "appAuthRedirectScheme" to "com.googleusercontent.apps.629143923826-95kpgdcfpdrh48omdrsj58v3oghpij7c"
+        )
     }
 
     buildTypes {

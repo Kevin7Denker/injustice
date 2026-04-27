@@ -25,7 +25,6 @@ import '../theme/theme_controller.dart';
 
 final injector = AutoInjector();
 void setupDependencyInjection() {
-  // Regristração de dependências do Core
   injector.addSingleton<ThemeController>(ThemeController.new);
   injector.addSingleton<PostgresConnectionService>(
     PostgresConnectionService.new,
@@ -33,22 +32,18 @@ void setupDependencyInjection() {
   injector.addSingleton<OAuth2Service>(OAuth2Service.new);
   injector.addSingleton<AuthViewModel>(AuthViewModel.new);
 
-  // Regristração de dependências para Account
-  // Repositories e servicos
   injector.addSingleton<IAccountLocalStorage>(AccountPostgresService.new);
   injector.addSingleton<IAccountRepository>(AccountRepositoryImpl.new);
-  // Use Cases e Facades
+
   injector.addSingleton<IAccountFacadeUseCases>(AccountFacadeUsecasesImpl.new);
   injector.addSingleton<IGetAccountUseCase>(GetAccountUseCaseImpl.new);
   injector.addSingleton<ISaveAccountUseCase>(SaveAccountUseCaseImpl.new);
   injector.addSingleton<IDeleteAccountUseCase>(DeleteAccountUseCaseImpl.new);
   injector.addSingleton<IUpdateAccountUseCase>(UpdateAccountUseCaseImpl.new);
 
-  // Regristração de dependências para Character
-  // Repositories e serviços
   injector.addSingleton<ICharacterLocalStorage>(CharacterPostgresService.new);
   injector.addSingleton<ICharacterRepository>(CharacterRepositoryImpl.new);
-  // Use Cases e Facades
+
   injector.addSingleton<ICharacterFacadeUseCases>(
     CharacterFacadeUseCasesImpl.new,
   );
@@ -66,10 +61,8 @@ void setupDependencyInjection() {
     DeleteCharacterUseCaseImpl.new,
   );
 
-  // viewmodes
-  // Account viewmodes
   injector.addSingleton<AccountViewModel>(AccountViewModel.new);
-  // Character List viewmodel
+
   injector.addSingleton<CharactersViewModel>(CharactersViewModel.new);
 
   injector.commit();

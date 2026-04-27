@@ -48,6 +48,10 @@ final class AuthViewModel extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       return true;
+    } on OAuthRedirectInProgressException {
+      _isLoading = false;
+      notifyListeners();
+      return false;
     } on FlutterAppAuthUserCancelledException {
       _errorMessage = 'Login cancelado pelo usuario.';
     } on FlutterAppAuthPlatformException catch (error) {

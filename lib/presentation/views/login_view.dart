@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/di/dependency_injection.dart';
@@ -33,6 +34,20 @@ class _LoginViewState extends State<LoginView>
     _pulseAnimation = Tween<double>(begin: 0.2, end: 0.45).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
+    if (kIsWeb) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final hasCallbackParams =
+            Uri.base.queryParameters.containsKey('code') ||
+            Uri.base.queryParameters.containsKey('error');
+
+        if (!hasCallbackParams) {
+          return;
+        }
+
+        _handleOAuthSignIn();
+      });
+    }
   }
 
   @override
@@ -257,7 +272,8 @@ class _ConfigHintBanner extends StatelessWidget {
         border: Border.all(color: AppColors.plasmaGold.withOpacity(0.4)),
       ),
       child: Text(
-        'Configure no .env: OAUTH_CLIENT_ID, OAUTH_REDIRECT_URI e OAUTH_ISSUER\n'
+        'Configure no .env: OAUTH_CLIENT_ID (mobile), OAUTH_WEB_CLIENT_ID (web),\n'
+        'OAUTH_REDIRECT_URI, OAUTH_WEB_REDIRECT_URI e OAUTH_ISSUER\n'
         'ou OAUTH_AUTHORIZATION_ENDPOINT + OAUTH_TOKEN_ENDPOINT.',
         style: context.textStyles.bodySmall?.copyWith(
           color: AppColors.coolWhite,

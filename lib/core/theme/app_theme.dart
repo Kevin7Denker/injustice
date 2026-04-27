@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// =============================================================================
-// SPACING
-// =============================================================================
-
 class AppSpacing {
-  // Spacing values
   static const double xs = 4.0;
   static const double sm = 8.0;
   static const double md = 16.0;
@@ -14,21 +9,18 @@ class AppSpacing {
   static const double xl = 32.0;
   static const double xxl = 48.0;
 
-  // Edge insets shortcuts
   static const EdgeInsets paddingXs = EdgeInsets.all(xs);
   static const EdgeInsets paddingSm = EdgeInsets.all(sm);
   static const EdgeInsets paddingMd = EdgeInsets.all(md);
   static const EdgeInsets paddingLg = EdgeInsets.all(lg);
   static const EdgeInsets paddingXl = EdgeInsets.all(xl);
 
-  // Horizontal padding
   static const EdgeInsets horizontalXs = EdgeInsets.symmetric(horizontal: xs);
   static const EdgeInsets horizontalSm = EdgeInsets.symmetric(horizontal: sm);
   static const EdgeInsets horizontalMd = EdgeInsets.symmetric(horizontal: md);
   static const EdgeInsets horizontalLg = EdgeInsets.symmetric(horizontal: lg);
   static const EdgeInsets horizontalXl = EdgeInsets.symmetric(horizontal: xl);
 
-  // Vertical padding
   static const EdgeInsets verticalXs = EdgeInsets.symmetric(vertical: xs);
   static const EdgeInsets verticalSm = EdgeInsets.symmetric(vertical: sm);
   static const EdgeInsets verticalMd = EdgeInsets.symmetric(vertical: md);
@@ -36,7 +28,6 @@ class AppSpacing {
   static const EdgeInsets verticalXl = EdgeInsets.symmetric(vertical: xl);
 }
 
-/// Border radius constants for consistent rounded corners
 class AppRadius {
   static const double sm = 8.0;
   static const double md = 12.0;
@@ -44,95 +35,65 @@ class AppRadius {
   static const double xl = 24.0;
 }
 
-// =============================================================================
-// TEXT STYLE EXTENSIONS
-// =============================================================================
-
-/// Extension to add text style utilities to BuildContext
-/// Access via context.textStyles
 extension TextStyleContext on BuildContext {
   TextTheme get textStyles => Theme.of(this).textTheme;
 }
 
-/// Helper methods for common text style modifications
 extension TextStyleExtensions on TextStyle {
-  /// Make text bold
   TextStyle get bold => copyWith(fontWeight: FontWeight.bold);
 
-  /// Make text semi-bold
   TextStyle get semiBold => copyWith(fontWeight: FontWeight.w600);
 
-  /// Make text medium weight
   TextStyle get medium => copyWith(fontWeight: FontWeight.w500);
 
-  /// Make text normal weight
   TextStyle get normal => copyWith(fontWeight: FontWeight.w400);
 
-  /// Make text light
   TextStyle get light => copyWith(fontWeight: FontWeight.w300);
 
-  /// Add custom color
   TextStyle withColor(Color color) => copyWith(color: color);
 
-  /// Add custom size
   TextStyle withSize(double size) => copyWith(fontSize: size);
 }
 
-// =============================================================================
-// COLORS — MIDNIGHT ARSENAL
-// =============================================================================
-
-/// Neon-cyan accent palette for the Injustice command-center theme
 class AppColors {
   AppColors._();
 
-  // ── Core Orange ──
   static const Color neonCyan = Color(0xFFFF7A2F);
   static const Color cyanLight = Color(0xFFFFAA70);
   static const Color cyanDark = Color(0xFFCC5500);
   static const Color cyanGlow = Color(0x40FF7A2F);
 
-  // ── Solar Gold ──
   static const Color plasmaViolet = Color(0xFFFFBB00);
   static const Color plasmaVioletLight = Color(0xFFFFD54F);
   static const Color plasmaVioletMuted = Color(0xFFCC9500);
 
-  // ── Hot Magenta (danger) ──
   static const Color hotMagenta = Color(0xFFFF3B7A);
   static const Color hotMagentaLight = Color(0xFFFF6A9A);
   static const Color hotMagentaMuted = Color(0xFFAA2850);
 
-  // ── Lime Scan (success) ──
   static const Color limeScan = Color(0xFF78FF56);
 
-  // ── Plasma Gold (warnings / gold rarity) ──
   static const Color plasmaGold = Color(0xFFFFD740);
 
-  // ── Surfaces ──
   static const Color void_ = Color(0xFF0A0907);
   static const Color surface = Color(0xFF13110F);
   static const Color surfaceVariant = Color(0xFF1C1916);
   static const Color surfaceElevated = Color(0xFF252119);
 
-  // ── Text ──
   static const Color coolWhite = Color(0xFFF2EDE4);
   static const Color coolWhiteMuted = Color(0xFF98897A);
   static const Color coolWhiteFaint = Color(0xFF685A4A);
 
-  // ── Borders ──
   static const Color outline = Color(0xFF2A2218);
   static const Color outlineFaint = Color(0xFF201A12);
 
-  // ── Semantic ──
   static const Color success = Color(0xFF78FF56);
   static const Color warning = Color(0xFFFFD740);
 
-  // ── Rarity glow colors ──
   static const Color rarityTitanium = Color(0xFF8B95A5);
   static const Color rarityPlasmaGold = Color(0xFFFFD740);
   static const Color rarityLegendary = Color(0xFFFF7A2F);
 
-  // ── Gradients ──
   static const LinearGradient accentGradient = LinearGradient(
     colors: [Color(0xFFFF7A2F), Color(0xFFFFBB00)],
     begin: Alignment.topLeft,
@@ -146,17 +107,11 @@ class AppColors {
   );
 
   static const LinearGradient headerGradient = LinearGradient(
-    colors: [
-      Color(0xFF161C26),
-      Color(0xFF0F1218),
-      Color(0xFF07090E),
-    ],
+    colors: [Color(0xFF161C26), Color(0xFF0F1218), Color(0xFF07090E)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  // ── Legacy aliases for smooth migration ──
-  // Kept so views referencing ember/combatRed compile; will map to new palette
   static const Color ember = neonCyan;
   static const Color emberLight = cyanLight;
   static const Color emberDark = cyanDark;
@@ -178,7 +133,6 @@ class AppColors {
   static const Color rarityGold = rarityPlasmaGold;
 }
 
-/// Font size constants
 class FontSizes {
   static const double displayLarge = 57.0;
   static const double displayMedium = 45.0;
@@ -196,10 +150,6 @@ class FontSizes {
   static const double bodyMedium = 14.0;
   static const double bodySmall = 12.0;
 }
-
-// =============================================================================
-// LIGHT MODE COLORS (dark-dominant as per game aesthetic)
-// =============================================================================
 
 class LightModeColors {
   static const lightPrimary = AppColors.neonCyan;
@@ -230,7 +180,6 @@ class LightModeColors {
   static const lightInversePrimary = AppColors.cyanDark;
 }
 
-/// Dark mode — deepest void
 class DarkModeColors {
   static const darkPrimary = Color(0xFFFF9050);
   static const darkOnPrimary = Color(0xFF090604);
@@ -258,11 +207,6 @@ class DarkModeColors {
   static const darkInversePrimary = Color(0xFFCC5500);
 }
 
-// =============================================================================
-// THEMES
-// =============================================================================
-
-/// Light theme — dark arsenal, cyan-accented
 ThemeData get lightTheme => ThemeData(
   useMaterial3: true,
   colorScheme: ColorScheme.dark(
@@ -289,68 +233,45 @@ ThemeData get lightTheme => ThemeData(
   brightness: Brightness.dark,
   scaffoldBackgroundColor: LightModeColors.lightBackground,
 
-  // ── Filled Button ──
   filledButtonTheme: FilledButtonThemeData(
     style: FilledButton.styleFrom(
       backgroundColor: AppColors.neonCyan,
       foregroundColor: AppColors.void_,
-      textStyle: GoogleFonts.dmSans(
-        fontWeight: FontWeight.w700,
-        fontSize: 15,
-      ),
+      textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 15),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       elevation: 0,
     ),
   ),
 
-  // ── Elevated Button ──
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: AppColors.neonCyan,
       foregroundColor: AppColors.void_,
       elevation: 0,
-      textStyle: GoogleFonts.dmSans(
-        fontWeight: FontWeight.w700,
-        fontSize: 15,
-      ),
+      textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 15),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
     ),
   ),
 
-  // ── Outlined Button ──
   outlinedButtonTheme: OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
       foregroundColor: AppColors.neonCyan,
       side: const BorderSide(color: AppColors.neonCyan, width: 1.5),
-      textStyle: GoogleFonts.dmSans(
-        fontWeight: FontWeight.w600,
-        fontSize: 15,
-      ),
+      textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w600, fontSize: 15),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
     ),
   ),
 
-  // ── Text Button ──
   textButtonTheme: TextButtonThemeData(
     style: TextButton.styleFrom(
       foregroundColor: AppColors.neonCyan,
-      textStyle: GoogleFonts.dmSans(
-        fontWeight: FontWeight.w600,
-        fontSize: 14,
-      ),
+      textStyle: GoogleFonts.dmSans(fontWeight: FontWeight.w600, fontSize: 14),
     ),
   ),
 
-  // ── AppBar ──
   appBarTheme: AppBarTheme(
     backgroundColor: Colors.transparent,
     foregroundColor: AppColors.coolWhite,
@@ -365,20 +286,15 @@ ThemeData get lightTheme => ThemeData(
     ),
   ),
 
-  // ── Card ──
   cardTheme: CardThemeData(
     elevation: 0,
     color: AppColors.surface,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(16),
-      side: BorderSide(
-        color: AppColors.outline.withOpacity(0.6),
-        width: 1,
-      ),
+      side: BorderSide(color: AppColors.outline.withOpacity(0.6), width: 1),
     ),
   ),
 
-  // ── FAB ──
   floatingActionButtonTheme: const FloatingActionButtonThemeData(
     backgroundColor: AppColors.neonCyan,
     foregroundColor: AppColors.void_,
@@ -386,23 +302,16 @@ ThemeData get lightTheme => ThemeData(
     shape: CircleBorder(),
   ),
 
-  // ── FilterChip ──
   chipTheme: ChipThemeData(
     backgroundColor: AppColors.surfaceVariant,
     selectedColor: AppColors.neonCyan.withOpacity(0.12),
     side: BorderSide(color: AppColors.outline, width: 1),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
-    ),
-    labelStyle: GoogleFonts.dmSans(
-      fontSize: 13,
-      fontWeight: FontWeight.w500,
-    ),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    labelStyle: GoogleFonts.dmSans(fontSize: 13, fontWeight: FontWeight.w500),
     checkmarkColor: AppColors.neonCyan,
     showCheckmark: false,
   ),
 
-  // ── Dialog ──
   dialogTheme: DialogThemeData(
     backgroundColor: AppColors.surface,
     surfaceTintColor: Colors.transparent,
@@ -422,20 +331,16 @@ ThemeData get lightTheme => ThemeData(
     ),
   ),
 
-  // ── SnackBar ──
   snackBarTheme: SnackBarThemeData(
     backgroundColor: AppColors.surfaceElevated,
     contentTextStyle: GoogleFonts.dmSans(
       fontSize: 14,
       color: AppColors.coolWhite,
     ),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     behavior: SnackBarBehavior.floating,
   ),
 
-  // ── BottomSheet ──
   bottomSheetTheme: const BottomSheetThemeData(
     backgroundColor: AppColors.surface,
     surfaceTintColor: Colors.transparent,
@@ -444,7 +349,6 @@ ThemeData get lightTheme => ThemeData(
     ),
   ),
 
-  // ── Popup Menu ──
   popupMenuTheme: PopupMenuThemeData(
     color: AppColors.surfaceVariant,
     surfaceTintColor: Colors.transparent,
@@ -454,23 +358,17 @@ ThemeData get lightTheme => ThemeData(
     ),
   ),
 
-  // ── Divider ──
   dividerTheme: const DividerThemeData(
     color: AppColors.outline,
     thickness: 1,
     space: 1,
   ),
 
-  // ── Icon ──
-  iconTheme: const IconThemeData(
-    color: AppColors.coolWhiteMuted,
-    size: 24,
-  ),
+  iconTheme: const IconThemeData(color: AppColors.coolWhiteMuted, size: 24),
 
   textTheme: _buildTextTheme(),
 );
 
-/// Dark theme — deepest void
 ThemeData get darkTheme => ThemeData(
   useMaterial3: true,
   colorScheme: ColorScheme.dark(
@@ -591,13 +489,8 @@ ThemeData get darkTheme => ThemeData(
   textTheme: _buildTextTheme(),
 );
 
-// =============================================================================
-// TEXT THEME — Rajdhani + DM Sans
-// =============================================================================
-
 TextTheme _buildTextTheme() {
   return TextTheme(
-    // ── Display — Rajdhani, angular military ──
     displayLarge: GoogleFonts.rajdhani(
       fontSize: FontSizes.displayLarge,
       fontWeight: FontWeight.w700,
@@ -614,7 +507,6 @@ TextTheme _buildTextTheme() {
       letterSpacing: 1.5,
     ),
 
-    // ── Headlines — Rajdhani ──
     headlineLarge: GoogleFonts.rajdhani(
       fontSize: FontSizes.headlineLarge,
       fontWeight: FontWeight.w700,
@@ -631,7 +523,6 @@ TextTheme _buildTextTheme() {
       letterSpacing: 0.8,
     ),
 
-    // ── Titles — DM Sans, crisp ──
     titleLarge: GoogleFonts.dmSans(
       fontSize: FontSizes.titleLarge,
       fontWeight: FontWeight.w600,
@@ -645,7 +536,6 @@ TextTheme _buildTextTheme() {
       fontWeight: FontWeight.w500,
     ),
 
-    // ── Labels — DM Sans ──
     labelLarge: GoogleFonts.dmSans(
       fontSize: FontSizes.labelLarge,
       fontWeight: FontWeight.w500,
@@ -662,7 +552,6 @@ TextTheme _buildTextTheme() {
       letterSpacing: 0.5,
     ),
 
-    // ── Body — DM Sans ──
     bodyLarge: GoogleFonts.dmSans(
       fontSize: FontSizes.bodyLarge,
       fontWeight: FontWeight.w400,

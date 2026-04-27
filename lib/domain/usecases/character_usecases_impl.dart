@@ -2,9 +2,6 @@ import '../../core/typedefs/types_defs.dart';
 import '../../data/repositories/character_repository_interface.dart';
 import 'character_usecases_interfaces.dart';
 
-/// implementacao dos usecases relacionados a Character
-
-/// use cases para obter personagem por id
 final class GetCharacterByIdUseCaseImpl implements IGetCharacterByIdUseCase {
   final ICharacterRepository _repository;
 
@@ -17,7 +14,6 @@ final class GetCharacterByIdUseCaseImpl implements IGetCharacterByIdUseCase {
   }
 }
 
-/// use case para obter todos os personagens salvos
 final class GetAllCharactersUseCaseImpl implements IGetAllCharactersUseCase {
   final ICharacterRepository _repository;
 
@@ -31,7 +27,6 @@ final class GetAllCharactersUseCaseImpl implements IGetAllCharactersUseCase {
   }
 }
 
-/// use case para salvar um personagem
 final class SaveCharacterUseCaseImpl implements ISaveCharacterUseCase {
   final ICharacterRepository _repository;
 
@@ -45,7 +40,6 @@ final class SaveCharacterUseCaseImpl implements ISaveCharacterUseCase {
   }
 }
 
-/// use case para atualizar um personagem
 final class UpdateCharacterUseCaseImpl implements IUpdateCharacterUseCase {
   final ICharacterRepository _repository;
 
@@ -59,7 +53,6 @@ final class UpdateCharacterUseCaseImpl implements IUpdateCharacterUseCase {
   }
 }
 
-/// use case para deletar um personagem
 final class DeleteCharacterUseCaseImpl implements IDeleteCharacterUseCase {
   final ICharacterRepository _repository;
 

@@ -8,12 +8,8 @@ class MetricUnitInputFormatter extends TextInputFormatter {
   final int decimals;
   late final NumberFormat _formatter;
 
-  MetricUnitInputFormatter({
-    this.unitMask,
-    int? decimals,
-  }) : decimals = (decimals == null || decimals < 0) ? 2 : decimals {
-    
-    // Cria a máscara com o número de casas decimais especificado
+  MetricUnitInputFormatter({this.unitMask, int? decimals})
+    : decimals = (decimals == null || decimals < 0) ? 2 : decimals {
     String pattern;
     if (this.decimals > 0) {
       String decimalPattern = '0' * this.decimals;
@@ -22,19 +18,21 @@ class MetricUnitInputFormatter extends TextInputFormatter {
       pattern = '#,##0';
     }
 
-    // Cria um formatter com o padrão especificado e a localidade pt_BR
     _formatter = NumberFormat(pattern, 'pt_BR');
   }
 
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     var unitMask = this.unitMask ?? '';
     int intOffSet = (unitMask.isEmpty) ? 0 : unitMask.length;
 
     if (newValue.text.isEmpty) {
       return newValue.copyWith(
-          selection: TextSelection.collapsed(offset: intOffSet + 1));
+        selection: TextSelection.collapsed(offset: intOffSet + 1),
+      );
     }
 
     String newText = newValue.text
@@ -50,7 +48,6 @@ class MetricUnitInputFormatter extends TextInputFormatter {
       value = 0.0;
     }
 
-    // Formata o número com duas casas decimais
     newText = '${_formatter.format(value)}$unitMask';
 
     return TextEditingValue(
