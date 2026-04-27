@@ -8,6 +8,7 @@ import '../../data/services/account_postgres_impl.dart';
 import '../../data/services/account_local_storage_interface.dart';
 import '../../data/services/character_local_storage_interface.dart';
 import '../../data/services/character_postgres_impl.dart';
+import '../../data/services/oauth2_service.dart';
 import '../../data/services/postgres_connection_service.dart';
 import '../../domain/facades/account_facade_usecases_impl.dart';
 import '../../domain/facades/account_facade_usecases_interface.dart';
@@ -17,6 +18,7 @@ import '../../domain/usecases/account_usecases_impl.dart';
 import '../../domain/usecases/account_usecases_interfaces.dart';
 import '../../domain/usecases/character_usecases_impl.dart';
 import '../../domain/usecases/character_usecases_interfaces.dart';
+import '../../presentation/controllers/auth_viewmodel.dart';
 import '../../presentation/controllers/account_viewmodel.dart';
 import '../../presentation/controllers/characters_view_model.dart';
 import '../theme/theme_controller.dart';
@@ -28,6 +30,8 @@ void setupDependencyInjection() {
   injector.addSingleton<PostgresConnectionService>(
     PostgresConnectionService.new,
   );
+  injector.addSingleton<OAuth2Service>(OAuth2Service.new);
+  injector.addSingleton<AuthViewModel>(AuthViewModel.new);
 
   // Regristração de dependências para Account
   // Repositories e servicos

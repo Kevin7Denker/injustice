@@ -5,8 +5,8 @@
 import FlutterMacOS
 import Foundation
 
-import shared_preferences_foundation
+import flutter_appauth
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
-  SharedPreferencesPlugin.register(with: registry.registrar(forPlugin: "SharedPreferencesPlugin"))
+  FlutterAppauthPlugin.register(with: registry.registrar(forPlugin: "FlutterAppauthPlugin"))
 }

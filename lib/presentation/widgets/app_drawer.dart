@@ -6,6 +6,7 @@ import '../../core/routes/app_routes.dart';
 import '../../core/theme/app_theme.dart';
 import '../../domain/models/account_entity.dart';
 import '../controllers/account_viewmodel.dart';
+import '../controllers/auth_viewmodel.dart';
 import 'package:signals_flutter/signals_flutter.dart';
 
 /// Glassmorphic sidebar drawer with animated active indicators
@@ -13,6 +14,7 @@ class AppDrawer extends StatelessWidget {
   AppDrawer({super.key});
 
   final _vmAccount = injector.get<AccountViewModel>();
+  final _vmAuth = injector.get<AuthViewModel>();
 
   @override
   Widget build(BuildContext context) {
@@ -122,6 +124,26 @@ class AppDrawer extends StatelessWidget {
                 ),
 
                 const Spacer(),
+
+                // ── Logout action ──
+                AnimatedBuilder(
+                  animation: _vmAuth,
+                  builder: (context, _) {
+                    if (!_vmAuth.isAuthenticated) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return _NavItem(
+                      icon: Icons.logout_rounded,
+                      label: 'Sair',
+                      isActive: currentRoute == AppPaths.login,
+                      onTap: () {
+                        context.pop();
+                        _vmAuth.signOut();
+                      },
+                    );
+                  },
+                ),
 
                 // ── Footer branding ──
                 Padding(

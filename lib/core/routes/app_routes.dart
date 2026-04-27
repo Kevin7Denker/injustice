@@ -1,13 +1,18 @@
 import '../../domain/models/account_entity.dart';
+import '../../presentation/controllers/account_viewmodel.dart';
+import '../../presentation/controllers/auth_viewmodel.dart';
+import '../../presentation/views/login_view.dart';
 import '../../presentation/views/about_view.dart';
 import '../../presentation/views/account_create_view.dart';
 import '../../presentation/views/characters_view.dart';
 import '../../presentation/views/home_view.dart';
+import '../di/dependency_injection.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 /// Route names for easier referencing
 class AppRouteNames {
+  static const login = 'login';
   static const home = 'home';
   static const about = 'about';
   static const accountCreate = 'account_create';
@@ -16,6 +21,7 @@ class AppRouteNames {
 
 /// Paths to keep URL structure consistent
 class AppPaths {
+  static const login = '/login';
   static const home = '/home';
   static const about = '/about';
   static const accountCreate = '/account-create';
@@ -26,30 +32,62 @@ class AppPaths {
 class AppRouter {
   AppRouter._();
 
+  static final AuthViewModel _authViewModel = injector.get<AuthViewModel>();
+
   static final GoRouter router = GoRouter(
-    initialLocation: AppPaths.home,
+    initialLocation: AppPaths.login,
+    refreshListenable: _authViewModel,
+    redirect: (context, state) {
+      final isLoginRoute = state.matchedLocation == AppPaths.login;
+      final isAuthenticated = _authViewModel.isAuthenticated;
+
+      if (!isAuthenticated && !isLoginRoute) {
+        return AppPaths.login;
+      }
+
+      if (isAuthenticated && isLoginRoute) {
+        return AppPaths.home;
+      }
+
+      return null;
+    },
     routes: <RouteBase>[
+      GoRoute(
+        path: AppPaths.login,
+        name: AppRouteNames.login,
+        pageBuilder: (context, state) =>
+            _buildPage(state: state, child: const LoginView()),
+      ),
       GoRoute(
         path: AppPaths.home,
         name: AppRouteNames.home,
-        pageBuilder: (context, state) => _buildPage(
-          state: state,
-          child: const HomeView(),
-        ),
+        pageBuilder: (context, state) =>
+            _buildPage(state: state, child: const HomeView()),
       ),
       GoRoute(
         path: AppPaths.accountCreate,
         name: AppRouteNames.accountCreate,
-        pageBuilder: (context, state) => _buildPage(
-          state: state,
-          child: const AccountCreateView(),
-        ),
+        pageBuilder: (context, state) =>
+            _buildPage(state: state, child: const AccountCreateView()),
       ),
       GoRoute(
         path: AppPaths.characters,
         name: AppRouteNames.characters,
         pageBuilder: (context, state) {
-          final account = state.extra as Account;
+          final accountFromExtra = state.extra;
+          final accountFromState = injector
+              .get<AccountViewModel>()
+              .accountState
+              .state
+              .value;
+          final account = accountFromExtra is Account
+              ? accountFromExtra
+              : accountFromState;
+
+          if (account == null) {
+            return _buildPage(state: state, child: const HomeView());
+          }
+
           return _buildPage(
             state: state,
             child: CharactersView(account: account),
@@ -59,10 +97,8 @@ class AppRouter {
       GoRoute(
         path: AppPaths.about,
         name: AppRouteNames.about,
-        pageBuilder: (context, state) => _buildPage(
-          state: state,
-          child: const AboutView(),
-        ),
+        pageBuilder: (context, state) =>
+            _buildPage(state: state, child: const AboutView()),
       ),
     ],
   );
@@ -89,10 +125,7 @@ class AppRouter {
 
         return FadeTransition(
           opacity: fadeAnimation,
-          child: SlideTransition(
-            position: slideAnimation,
-            child: child,
-          ),
+          child: SlideTransition(position: slideAnimation, child: child),
         );
       },
     );

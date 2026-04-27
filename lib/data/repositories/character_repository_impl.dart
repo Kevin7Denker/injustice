@@ -3,8 +3,6 @@ import 'character_repository_interface.dart';
 import '../services/character_local_storage_interface.dart';
 import '../../domain/models/character_entity.dart';
 
-/// implementacao do repositorio de character
-
 final class CharacterRepositoryImpl implements ICharacterRepository {
   final ICharacterLocalStorage _localStorage;
 
