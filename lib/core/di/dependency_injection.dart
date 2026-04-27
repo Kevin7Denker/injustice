@@ -4,10 +4,11 @@ import '../../data/repositories/account_repository_impl.dart';
 import '../../data/repositories/account_repository_interface.dart';
 import '../../data/repositories/character_repository_impl.dart';
 import '../../data/repositories/character_repository_interface.dart';
+import '../../data/services/account_postgres_impl.dart';
 import '../../data/services/account_local_storage_interface.dart';
-import '../../data/services/account_shared_preferences_impl.dart';
 import '../../data/services/character_local_storage_interface.dart';
-import '../../data/services/character_shared_preferences_impl.dart';
+import '../../data/services/character_postgres_impl.dart';
+import '../../data/services/postgres_connection_service.dart';
 import '../../domain/facades/account_facade_usecases_impl.dart';
 import '../../domain/facades/account_facade_usecases_interface.dart';
 import '../../domain/facades/character_facade_usecases_impl.dart';
@@ -24,12 +25,13 @@ final injector = AutoInjector();
 void setupDependencyInjection() {
   // Regristração de dependências do Core
   injector.addSingleton<ThemeController>(ThemeController.new);
+  injector.addSingleton<PostgresConnectionService>(
+    PostgresConnectionService.new,
+  );
 
   // Regristração de dependências para Account
   // Repositories e servicos
-  injector.addSingleton<IAccountLocalStorage>(
-    AccountSharedPreferencesService.new,
-  );
+  injector.addSingleton<IAccountLocalStorage>(AccountPostgresService.new);
   injector.addSingleton<IAccountRepository>(AccountRepositoryImpl.new);
   // Use Cases e Facades
   injector.addSingleton<IAccountFacadeUseCases>(AccountFacadeUsecasesImpl.new);
@@ -40,9 +42,7 @@ void setupDependencyInjection() {
 
   // Regristração de dependências para Character
   // Repositories e serviços
-  injector.addSingleton<ICharacterLocalStorage>(
-    CharacterSharedPreferencesService.new,
-  );
+  injector.addSingleton<ICharacterLocalStorage>(CharacterPostgresService.new);
   injector.addSingleton<ICharacterRepository>(CharacterRepositoryImpl.new);
   // Use Cases e Facades
   injector.addSingleton<ICharacterFacadeUseCases>(
